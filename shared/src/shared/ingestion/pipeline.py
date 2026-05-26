@@ -1,4 +1,10 @@
-"""DocumentIngestionPipeline — orchestrates parse → chunk → embed → store."""
+"""DocumentIngestionPipeline — orchestrates parse → chunk → embed → store.
+
+Optionally accepts a *vision_describer* callable to convert extracted image bytes
+into text descriptions stored as IMAGE_DESCRIPTION chunks. When provided, the
+pipeline will call `await vision_describer(image_bytes, media_type, metadata)`
+for each image on every page, expecting a string description in return.
+"""
 
 from __future__ import annotations
 
@@ -6,7 +12,7 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from shared.embeddings.service import EmbeddingService
 from shared.ingestion.chunking import ChunkingStrategies, ChunkingStrategy
@@ -15,6 +21,9 @@ from shared.models.document import ChunkType, DocumentChunk
 from shared.storage.vector_store import VectorStoreClient
 
 logger = logging.getLogger(__name__)
+
+# Type alias for the optional vision description callable
+VisionDescriberFn = Callable[[bytes, str, dict[str, Any]], Awaitable[str]]
 
 
 @dataclass
@@ -29,12 +38,19 @@ class IngestionResult:
 class DocumentIngestionPipeline:
     """End-to-end pipeline: PDF → parsed pages → chunks → embeddings → vector store.
 
-    Usage:
+    Usage (text-only):
         pipeline = DocumentIngestionPipeline(
             vector_store=pgvector_client,
             embedding_service=embedding_svc,
             chunking_strategy=ChunkingStrategy.SEMANTIC,
         )
+        result = await pipeline.ingest_pdf("paper.pdf")
+
+    Usage (multimodal — with vision descriptions):
+        async def describe(img_bytes, media_type, meta):
+            return await vision_describer.describe_image(img_bytes, media_type)
+
+        pipeline = DocumentIngestionPipeline(..., vision_describer=describe)
         result = await pipeline.ingest_pdf("paper.pdf")
     """
 
@@ -47,16 +63,18 @@ class DocumentIngestionPipeline:
         chunk_overlap: int = 64,
         extract_images: bool = False,
         batch_embed_size: int = 50,
+        vision_describer: VisionDescriberFn | None = None,
     ) -> None:
         self._vector_store = vector_store
         self._embedding_service = embedding_service
         self._chunking_strategy = chunking_strategy
         self._chunk_size = chunk_size
         self._chunk_overlap = chunk_overlap
-        self._extract_images = extract_images
+        self._extract_images = extract_images or (vision_describer is not None)
         self._batch_embed_size = batch_embed_size
+        self._vision_describer = vision_describer
 
-        self._pdf_parser = PDFParser(extract_images=extract_images)
+        self._pdf_parser = PDFParser(extract_images=self._extract_images)
         self._chunker = ChunkingStrategies.get(
             strategy=chunking_strategy,
             chunk_size=chunk_size,
@@ -109,6 +127,18 @@ class DocumentIngestionPipeline:
                     )
                 )
                 chunk_index += 1
+
+            # Image description chunks (requires vision_describer)
+            if self._vision_describer and page.images:
+                image_chunks = await self._describe_page_images(
+                    pdf_path=path,
+                    page_images=page.images,
+                    document_id=doc_id,
+                    page_meta=page_meta,
+                    start_index=chunk_index,
+                )
+                all_chunks.extend(image_chunks)
+                chunk_index += len(image_chunks)
 
         logger.info(
             "Ingestion '%s': %d chunks from %d pages",
@@ -171,6 +201,42 @@ class DocumentIngestionPipeline:
         )
 
     # ── Internals ─────────────────────────────────────────────────────────────
+
+    async def _describe_page_images(
+        self,
+        pdf_path: Path,
+        page_images: list[dict[str, Any]],
+        document_id: str,
+        page_meta: dict[str, Any],
+        start_index: int,
+    ) -> list[DocumentChunk]:
+        """Describe each image on a page via the vision_describer callable."""
+        chunks: list[DocumentChunk] = []
+        chunk_idx = start_index
+
+        for img_ref in page_images:
+            xref = img_ref.get("xref")
+            if xref is None:
+                continue
+            try:
+                img_bytes, media_type = self._pdf_parser.extract_image_bytes(pdf_path, xref)
+                img_meta = {**page_meta, "xref": xref, "media_type": media_type}
+                description = await self._vision_describer(img_bytes, media_type, img_meta)  # type: ignore[misc]
+                if description and description.strip():
+                    chunks.append(
+                        DocumentChunk(
+                            document_id=document_id,
+                            chunk_index=chunk_idx,
+                            chunk_type=ChunkType.IMAGE_DESCRIPTION,
+                            content=description,
+                            metadata=img_meta,
+                        )
+                    )
+                    chunk_idx += 1
+            except Exception as exc:
+                logger.warning("Image description failed (xref=%s): %s", xref, exc)
+
+        return chunks
 
     async def _embed_chunks(self, chunks: list[DocumentChunk]) -> list[DocumentChunk]:
         """Embed all chunks in batches, mutating the embedding field in-place."""

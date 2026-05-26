@@ -120,6 +120,83 @@ class PDFParser:
             metadata={"page_number": page_number},
         )
 
+    def extract_image_bytes(
+        self, pdf_path: str | Path, xref: int, target_format: str = "png"
+    ) -> tuple[bytes, str]:
+        """Extract raw image bytes from a PDF by xref number.
+
+        Args:
+            pdf_path: Path to the PDF file.
+            xref: Cross-reference number of the image (from ParsedPage.images[*]["xref"]).
+            target_format: Output format — "png" (default) or "jpeg".
+
+        Returns:
+            Tuple of (image_bytes, media_type) e.g. (b"...", "image/png").
+        """
+        import fitz
+
+        doc = fitz.open(str(pdf_path))
+        try:
+            img_info = doc.extract_image(xref)
+            ext: str = img_info.get("ext", "png").lower()
+            raw_bytes: bytes = img_info["image"]
+
+            if target_format == "png" or ext not in ("png", "jpeg", "jpg"):
+                pix = fitz.Pixmap(doc, xref)
+                if pix.n > 4:  # CMYK → RGB
+                    pix = fitz.Pixmap(fitz.csRGB, pix)
+                raw_bytes = pix.tobytes("png")
+                media_type = "image/png"
+            else:
+                media_type = f"image/{ext.replace('jpg', 'jpeg')}"
+        finally:
+            doc.close()
+
+        return raw_bytes, media_type
+
+    def extract_page_images(
+        self, pdf_path: str | Path, page_number: int
+    ) -> list[tuple[bytes, str, dict[str, Any]]]:
+        """Extract all images from a page as (bytes, media_type, metadata) tuples.
+
+        Args:
+            pdf_path: Path to the PDF file.
+            page_number: 1-indexed page number.
+
+        Returns:
+            List of (image_bytes, media_type, metadata) for each image on the page.
+            Returns an empty list if the page number is out of range.
+        """
+        import fitz
+
+        path = Path(pdf_path)
+        doc = fitz.open(str(path))
+        results: list[tuple[bytes, str, dict[str, Any]]] = []
+
+        try:
+            if page_number < 1 or page_number > len(doc):
+                return []
+
+            page = doc[page_number - 1]
+            for img_info in page.get_images(full=True):
+                xref = img_info[0]
+                try:
+                    img_bytes, media_type = self.extract_image_bytes(path, xref)
+                    meta: dict[str, Any] = {
+                        "xref": xref,
+                        "page_number": page_number,
+                        "width": img_info[2],
+                        "height": img_info[3],
+                        "source_path": str(path),
+                    }
+                    results.append((img_bytes, media_type, meta))
+                except Exception as exc:
+                    logger.warning("Failed to extract image xref=%d: %s", xref, exc)
+        finally:
+            doc.close()
+
+        return results
+
     @staticmethod
     def _looks_like_table(text: str) -> bool:
         """Heuristic: if >30% of lines contain tab/pipe chars, treat as table."""
