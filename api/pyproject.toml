@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "api"
+version = "0.1.0"
+description = "FastAPI pipeline router for RAG Research Platform"
+requires-python = ">=3.12"
+dependencies = [
+    "shared",
+    "fastest-rag",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/api"]

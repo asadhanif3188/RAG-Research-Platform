@@ -1,0 +1,94 @@
+"""FastAPI dependency injection for shared services.
+
+Services are initialised once at startup and shared across requests
+via module-level singletons injected through FastAPI's Depends mechanism.
+"""
+
+from __future__ import annotations
+
+import logging
+import os
+from functools import lru_cache
+from typing import Annotated
+
+from fastapi import Depends
+
+from shared.config import get_settings
+from shared.embeddings.service import EmbeddingService
+from shared.storage.vector_store import PgVectorClient
+
+from fastest_rag.cache_layer import CacheLayer
+from fastest_rag.pipeline import NaiveRAGPipeline
+
+logger = logging.getLogger(__name__)
+
+# ── Module-level singletons (initialised on first use) ────────────────────────
+
+_embedding_service: EmbeddingService | None = None
+_pgvector_client: PgVectorClient | None = None
+_cache_layer: CacheLayer | None = None
+_naive_pipeline: NaiveRAGPipeline | None = None
+
+
+async def get_embedding_service() -> EmbeddingService:
+    global _embedding_service
+    if _embedding_service is None:
+        settings = get_settings()
+        _embedding_service = EmbeddingService(
+            api_key=settings.openai_api_key,
+            model=settings.embedding_model,
+            dimensions=settings.embedding_dimensions,
+            batch_size=settings.embedding_batch_size,
+        )
+        _embedding_service.connect()
+    return _embedding_service
+
+
+async def get_pgvector_client() -> PgVectorClient:
+    global _pgvector_client
+    if _pgvector_client is None:
+        settings = get_settings()
+        _pgvector_client = PgVectorClient(database_url=settings.database_url)
+        await _pgvector_client.connect()
+    return _pgvector_client
+
+
+async def get_cache_layer(
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+) -> CacheLayer:
+    global _cache_layer
+    if _cache_layer is None:
+        settings = get_settings()
+        _cache_layer = CacheLayer(
+            redis_url=settings.redis_url,
+            similarity_threshold=settings.semantic_cache_threshold,
+            ttl=settings.redis_cache_ttl,
+            embedding_service=embedding_service,
+        )
+        await _cache_layer.connect()
+    return _cache_layer
+
+
+async def get_naive_pipeline(
+    vector_store: PgVectorClient = Depends(get_pgvector_client),
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+    cache_layer: CacheLayer = Depends(get_cache_layer),
+) -> NaiveRAGPipeline:
+    global _naive_pipeline
+    if _naive_pipeline is None:
+        settings = get_settings()
+        _naive_pipeline = NaiveRAGPipeline(
+            vector_store=vector_store,
+            embedding_service=embedding_service,
+            cache_layer=cache_layer,
+            anthropic_api_key=settings.anthropic_api_key,
+        )
+        _naive_pipeline.connect()
+    return _naive_pipeline
+
+
+# Type aliases for cleaner route signatures
+EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
+PgVectorDep = Annotated[PgVectorClient, Depends(get_pgvector_client)]
+CacheLayerDep = Annotated[CacheLayer, Depends(get_cache_layer)]
+NaivePipelineDep = Annotated[NaiveRAGPipeline, Depends(get_naive_pipeline)]
