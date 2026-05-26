@@ -268,49 +268,49 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 ### Phase 0: Shared Infrastructure
 
 ```
-[ ] 0.1  Initialize uv monorepo with workspace pyproject.toml
-[ ] 0.2  Create docker-compose.yml with pgvector, Qdrant, Redis, Neo4j, LangFuse
-[ ] 0.3  Define shared Pydantic models: Document, Chunk, Query, RetrievalResult, EvalResult
-[ ] 0.4  Implement VectorStoreClient — pgvector + Qdrant abstraction with common interface
-[ ] 0.5  Implement EmbeddingService — wraps OpenAI text-embedding-3-large with batching
-[ ] 0.6  Implement DocumentIngestionPipeline — PDF → text chunks → embeddings → vector store
-[ ] 0.7  Implement ChunkingStrategies: fixed-size, semantic (sentence-transformers), sliding window
-[ ] 0.8  Implement RedisSemanticCache — embed query, check cache, return if hit
-[ ] 0.9  Implement RAGASRunner — faithfulness, answer relevancy, context precision, context recall
-[ ] 0.10 Write integration tests for vector store CRUD and embedding service
-[ ] 0.11 Write .env.example with all required environment variables
+[x] 0.1  Initialize uv monorepo with workspace pyproject.toml
+[x] 0.2  Create docker-compose.yml with pgvector, Qdrant, Redis, Neo4j, LangFuse
+[x] 0.3  Define shared Pydantic models: Document, Chunk, Query, RetrievalResult, EvalResult
+[x] 0.4  Implement VectorStoreClient — pgvector + Qdrant abstraction with common interface
+[x] 0.5  Implement EmbeddingService — wraps OpenAI text-embedding-3-large with batching
+[x] 0.6  Implement DocumentIngestionPipeline — PDF → text chunks → embeddings → vector store
+[x] 0.7  Implement ChunkingStrategies: fixed-size, semantic (sentence-transformers), sliding window
+[x] 0.8  Implement RedisSemanticCache — embed query, check cache, return if hit
+[x] 0.9  Implement RAGASRunner — faithfulness, answer relevancy, context precision, context recall
+[x] 0.10 Write integration tests for vector store CRUD and embedding service
+[x] 0.11 Write .env.example with all required environment variables
 ```
 
 ### Phase 1: Fastest RAG Stack
 
 ```
-[ ] 1.1  Implement NaiveRAGPipeline — baseline: embed query → top-k retrieval → generate
-[ ] 1.2  Configure Qdrant collection with binary quantization (BQ) encoding
-[ ] 1.3  Configure Qdrant collection with scalar quantization (SQ) for comparison
-[ ] 1.4  Implement BenchmarkRunner — measures latency (p50, p95, p99), throughput (QPS), recall@k
-[ ] 1.5  Load 1M+ sample vectors (use synthetic embeddings or public dataset)
-[ ] 1.6  Run benchmarks across: full precision, SQ, BQ — record results
-[ ] 1.7  Implement Redis semantic cache with configurable similarity threshold
-[ ] 1.8  Measure cache hit rate and effective latency reduction
-[ ] 1.9  Build Streamlit benchmark dashboard showing live latency charts and cache stats
-[ ] 1.10 Run RAGAS evaluation on BQ vs full-precision to show quality trade-off
-[ ] 1.11 Write unit tests for BenchmarkRunner and cache layer
+[x] 1.1  Implement NaiveRAGPipeline — baseline: embed query → top-k retrieval → generate
+[x] 1.2  Configure Qdrant collection with binary quantization (BQ) encoding
+[x] 1.3  Configure Qdrant collection with scalar quantization (SQ) for comparison
+[x] 1.4  Implement BenchmarkRunner — measures latency (p50, p95, p99), throughput (QPS), recall@k
+[x] 1.5  Load 1M+ sample vectors (use synthetic embeddings or public dataset)
+[x] 1.6  Run benchmarks across: full precision, SQ, BQ — record results
+[x] 1.7  Implement Redis semantic cache with configurable similarity threshold
+[x] 1.8  Measure cache hit rate and effective latency reduction
+[x] 1.9  Build Streamlit benchmark dashboard showing live latency charts and cache stats
+[x] 1.10 Run RAGAS evaluation on BQ vs full-precision to show quality trade-off
+[x] 1.11 Write unit tests for BenchmarkRunner and cache layer
 ```
 
 ### Phase 2: Multimodal RAG
 
 ```
-[ ] 2.1  Extend DocumentIngestionPipeline with image extraction (PyMuPDF)
-[ ] 2.2  Implement VisionDescriber — sends images/tables to Claude vision, returns text descriptions
-[ ] 2.3  Implement TableExtractor — detect tables in PDFs, extract as markdown
-[ ] 2.4  Build MultimodalChunker — chunks text, image descriptions, and table markdown separately
-[ ] 2.5  Store chunks with metadata: source_file, page_number, chunk_type (text/image/table), bounding_box
-[ ] 2.6  Implement ProvenanceTracker — maps each answer sentence back to its source chunk(s)
-[ ] 2.7  Build MultimodalRAGPipeline — retrieves across text, image, and table chunk types
-[ ] 2.8  Implement ProvenanceViewer Chainlit component — highlights source page/section in answer
-[ ] 2.9  Create test dataset: 10 mixed-content PDFs (financial reports, scientific papers)
-[ ] 2.10 Run RAGAS evaluation on text-only vs multimodal retrieval — show recall improvement
-[ ] 2.11 Write tests for VisionDescriber (mock Claude API) and ProvenanceTracker
+[x] 2.1  Extend DocumentIngestionPipeline with image extraction (PyMuPDF)
+[x] 2.2  Implement VisionDescriber — sends images/tables to Claude vision, returns text descriptions
+[x] 2.3  Implement TableExtractor — detect tables in PDFs, extract as markdown
+[x] 2.4  Build MultimodalChunker — chunks text, image descriptions, and table markdown separately
+[x] 2.5  Store chunks with metadata: source_file, page_number, chunk_type (text/image/table), bounding_box
+[x] 2.6  Implement ProvenanceTracker — maps each answer sentence back to its source chunk(s)
+[x] 2.7  Build MultimodalRAGPipeline — retrieves across text, image, and table chunk types
+[x] 2.8  Implement ProvenanceViewer Chainlit component — highlights source page/section in answer
+[x] 2.9  Create test dataset: 10 mixed-content PDFs (financial reports, scientific papers)
+[x] 2.10 Run RAGAS evaluation on text-only vs multimodal retrieval — show recall improvement
+[x] 2.11 Write tests for VisionDescriber (mock Claude API) and ProvenanceTracker
 ```
 
 ### Phase 3: Corrective RAG (CRAG)
