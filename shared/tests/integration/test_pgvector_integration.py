@@ -48,7 +48,7 @@ def init_schema(postgres_url):
             chunk_type TEXT NOT NULL DEFAULT 'text',
             content TEXT NOT NULL,
             metadata JSONB DEFAULT '{}',
-            embedding vector(3072),
+            embedding vector(1536),
             created_at TIMESTAMPTZ DEFAULT now(),
             updated_at TIMESTAMPTZ DEFAULT now()
         );
@@ -70,7 +70,7 @@ async def pgvector_client(postgres_url, init_schema):
 
 
 def make_chunks(n: int = 3) -> list[DocumentChunk]:
-    dim = 3072
+    dim = 1536
     return [
         DocumentChunk(
             id=f"integ-chunk-{i:03d}",
@@ -160,7 +160,7 @@ async def test_delete_document(pgvector_client):
 @pytest.mark.asyncio
 @pytest.mark.integration
 async def test_search_returns_results(pgvector_client):
-    dim = 3072
+    dim = 1536
     query_vec = [1.0 / math.sqrt(dim)] * dim
     results = await pgvector_client.search(query_vec, top_k=3)
     assert isinstance(results, list)
