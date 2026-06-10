@@ -48,18 +48,20 @@ class RAGASRunner:
 
         if self._llm is None:
             from langchain_anthropic import ChatAnthropic
+            from pydantic import SecretStr
 
-            self._llm = ChatAnthropic(
-                model="claude-haiku-4-5-20251001",
-                api_key=self._anthropic_api_key,
+            self._llm = ChatAnthropic(  # type: ignore[call-arg]
+                model_name="claude-haiku-4-5-20251001",
+                anthropic_api_key=SecretStr(self._anthropic_api_key or ""),
             )
 
         if self._embeddings is None:
             from langchain_openai import OpenAIEmbeddings
+            from pydantic import SecretStr
 
             self._embeddings = OpenAIEmbeddings(
                 model="text-embedding-3-large",
-                api_key=self._openai_api_key,
+                api_key=SecretStr(self._openai_api_key or ""),
             )
 
         self._initialized = True
@@ -105,7 +107,7 @@ class RAGASRunner:
                 embeddings=self._embeddings,
                 raise_exceptions=False,
             )
-            scores = result.to_pandas().iloc[0].to_dict()
+            scores = result.to_pandas().iloc[0].to_dict()  # type: ignore[union-attr]
             logger.info(
                 "RAGAS scores — faithfulness=%.3f, answer_relevancy=%.3f, "
                 "context_precision=%.3f, context_recall=%s",
@@ -175,7 +177,7 @@ class RAGASRunner:
                 embeddings=self._embeddings,
                 raise_exceptions=False,
             )
-            df = result.to_pandas()
+            df = result.to_pandas()  # type: ignore[union-attr]
         except Exception:
             logger.exception("RAGAS batch evaluation failed; returning empty results")
             return [

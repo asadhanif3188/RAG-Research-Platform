@@ -78,7 +78,7 @@ class RedisSemanticCache:
                 logger.debug(
                     "Semantic cache HIT (score=%.4f, threshold=%.4f)", best_score, self._threshold
                 )
-                return json.loads(raw_response)
+                return dict(json.loads(raw_response))
 
         logger.debug("Semantic cache MISS (best_score=%.4f)", best_score)
         return None
@@ -110,14 +110,14 @@ class RedisSemanticCache:
     async def invalidate(self, query: str) -> bool:
         """Delete a specific cache entry by query text. Returns True if deleted."""
         cache_key = _CACHE_KEY_PREFIX + hashlib.sha256(query.encode()).hexdigest()
-        deleted = await self._redis.delete(cache_key)
+        deleted: int = await self._redis.delete(cache_key)
         return deleted > 0
 
     async def flush(self) -> int:
         """Delete all semantic cache entries. Returns count deleted."""
         keys = await self._redis.keys(f"{_CACHE_KEY_PREFIX}*")
         if keys:
-            return await self._redis.delete(*keys)
+            return int(await self._redis.delete(*keys))
         return 0
 
     async def cache_embedding(self, text: str, embedding: list[float]) -> None:
@@ -135,7 +135,7 @@ class RedisSemanticCache:
         raw = await self._redis.get(key)
         if raw is None:
             return None
-        return np.frombuffer(raw, dtype=np.float32).tolist()
+        return list(np.frombuffer(raw, dtype=np.float32).tolist())
 
     async def health_check(self) -> bool:
         try:

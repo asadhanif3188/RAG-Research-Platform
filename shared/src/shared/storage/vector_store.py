@@ -180,7 +180,7 @@ class PgVectorClient(VectorStoreClient):
         async with self._session_factory() as session:
             result = await session.execute(sql, {"ids": chunk_ids})
             await session.commit()
-            return result.rowcount
+            return int(result.rowcount)
 
     async def delete_document(self, document_id: str) -> int:
         from sqlalchemy import text
@@ -189,7 +189,7 @@ class PgVectorClient(VectorStoreClient):
         async with self._session_factory() as session:
             result = await session.execute(sql, {"doc_id": document_id})
             await session.commit()
-            return result.rowcount
+            return int(result.rowcount)
 
     async def get(self, chunk_id: str) -> DocumentChunk | None:
         from sqlalchemy import text
@@ -297,7 +297,7 @@ class QdrantVectorClient(VectorStoreClient):
         ]
 
         await self._client.upsert(collection_name=self._collection, points=points)
-        ids = [p.id for p in points]
+        ids = [str(p.id) for p in points]
         logger.debug("Upserted %d points to Qdrant", len(ids))
         return ids
 
@@ -314,7 +314,7 @@ class QdrantVectorClient(VectorStoreClient):
             conditions = [
                 FieldCondition(key=k, match=MatchValue(value=v)) for k, v in filters.items()
             ]
-            qdrant_filter = Filter(must=conditions)
+            qdrant_filter = Filter(must=conditions)  # type: ignore[arg-type]
 
         hits = await self._client.search(
             collection_name=self._collection,
@@ -347,7 +347,7 @@ class QdrantVectorClient(VectorStoreClient):
             return 0
         await self._client.delete(
             collection_name=self._collection,
-            points_selector=PointIdsList(points=chunk_ids),
+            points_selector=PointIdsList(points=chunk_ids),  # type: ignore[arg-type]
         )
         return len(chunk_ids)
 

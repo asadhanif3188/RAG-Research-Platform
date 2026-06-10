@@ -34,7 +34,7 @@ testpaths = [
     "pipelines/fastest_rag/tests",
     "pipelines/multimodal_rag/tests",
 ]
-addopts = "--cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src --cov-report=term-missing"
+addopts = "--import-mode=importlib --cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src --cov-report=term-missing"
 markers = [
     "unit: Unit tests (no external dependencies)",
     "integration: Integration tests (require Docker services)",
