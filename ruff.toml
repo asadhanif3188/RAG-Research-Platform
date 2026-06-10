@@ -1,0 +1,12 @@
+target-version = "py312"
+line-length = 100
+
+[lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "TCH"]
+ignore = ["E501"]
+
+[lint.isort]
+known-first-party = ["shared", "fastest_rag", "multimodal_rag", "corrective_rag", "self_rag", "video_rag", "api"]
+
+[lint.per-file-ignores]
+"**/tests/**" = ["S101"]

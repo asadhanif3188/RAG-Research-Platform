@@ -39,9 +39,4 @@ testpaths = [
 ]
 addopts = "--cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src --cov-report=term-missing"
 
-[tool.ruff]
-target-version = "py312"
-line-length = 100
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "N", "UP"]
+# Ruff config in ruff.toml, mypy config in mypy.ini

@@ -1,0 +1,120 @@
+name: RAGAS Evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      pipeline:
+        description: "Pipeline to evaluate"
+        required: false
+        default: "fastest_rag"
+        type: choice
+        options:
+          - fastest_rag
+          - multimodal_rag
+          - corrective_rag
+          - self_rag
+          - video_rag
+          - all
+
+jobs:
+  evaluate:
+    name: Run RAGAS Evaluation
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ragdb
+          POSTGRES_USER: raguser
+          POSTGRES_PASSWORD: ragpassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U raguser -d ragdb"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql+asyncpg://raguser:ragpassword@localhost:5432/ragdb
+      REDIS_URL: redis://localhost:6379/0
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Init pgvector schema
+        run: |
+          PGPASSWORD=ragpassword psql -h localhost -U raguser -d ragdb \
+            -f infra/init-pgvector.sql
+
+      - name: Run RAGAS evaluation
+        run: |
+          uv run python -c "
+          import asyncio
+          import json
+          from shared.eval.ragas_runner import RAGASRunner
+
+          async def main():
+              runner = RAGASRunner()
+              samples = [
+                  {
+                      'query': 'What is Retrieval-Augmented Generation?',
+                      'answer': 'RAG is a technique that combines retrieval with language model generation to produce grounded answers.',
+                      'contexts': ['Retrieval-Augmented Generation (RAG) augments LLMs with retrieved documents to reduce hallucination.'],
+                      'ground_truth': 'RAG combines retrieval systems with generative language models.',
+                  },
+                  {
+                      'query': 'How does pgvector work?',
+                      'answer': 'pgvector is a PostgreSQL extension that adds vector similarity search using HNSW and IVFFlat indexes.',
+                      'contexts': ['pgvector extends PostgreSQL with vector data types and similarity search operators.'],
+                      'ground_truth': 'pgvector adds vector similarity search to PostgreSQL.',
+                  },
+              ]
+              results = await runner.evaluate_batch(samples, pipeline='${{ github.event.inputs.pipeline }}')
+              output = [r.model_dump(mode='json') for r in results]
+              with open('eval_results.json', 'w') as f:
+                  json.dump(output, f, indent=2, default=str)
+              for r in results:
+                  print(f'Query: {r.query}')
+                  print(f'  Faithfulness:       {r.faithfulness}')
+                  print(f'  Answer Relevancy:   {r.answer_relevancy}')
+                  print(f'  Context Precision:  {r.context_precision}')
+                  print(f'  Context Recall:     {r.context_recall}')
+                  print(f'  Aggregate:          {r.aggregate_score()}')
+                  print()
+
+          asyncio.run(main())
+          "
+
+      - name: Upload eval results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ragas-eval-results-${{ github.event.inputs.pipeline }}-${{ github.run_number }}
+          path: eval_results.json
+          retention-days: 90
