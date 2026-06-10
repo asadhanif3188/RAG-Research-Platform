@@ -366,13 +366,67 @@ _CHUNK_TYPE_LABELS = {
     "table": "Table",
 }
 
-_STOPWORDS = frozenset([
-    "the", "a", "an", "is", "it", "in", "on", "at", "to", "for", "of", "and", "or", "but",
-    "not", "with", "this", "that", "are", "was", "were", "be", "been", "has", "have", "had",
-    "do", "does", "did", "will", "would", "could", "should", "may", "might", "can", "its",
-    "their", "they", "we", "you", "he", "she", "as", "by", "from", "which", "who", "what",
-    "when", "where", "how", "if", "also", "than", "then", "so",
-])
+_STOPWORDS = frozenset(
+    [
+        "the",
+        "a",
+        "an",
+        "is",
+        "it",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "and",
+        "or",
+        "but",
+        "not",
+        "with",
+        "this",
+        "that",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "has",
+        "have",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "can",
+        "its",
+        "their",
+        "they",
+        "we",
+        "you",
+        "he",
+        "she",
+        "as",
+        "by",
+        "from",
+        "which",
+        "who",
+        "what",
+        "when",
+        "where",
+        "how",
+        "if",
+        "also",
+        "than",
+        "then",
+        "so",
+    ]
+)
 
 
 def _tokenize(text: str) -> set[str]:
@@ -557,7 +611,7 @@ def render_provenance(answer: str, provenance: list[ProvenanceRecord]) -> str:
         preview = p.sentence[:80] + ("…" if len(p.sentence) > 80 else "")
         rows += f"""<tr>
             <td style="padding:6px 10px;background:{colour};border-radius:4px;">
-                {icon} {html.escape(p.chunk_type.replace('_', ' ').title())}</td>
+                {icon} {html.escape(p.chunk_type.replace("_", " ").title())}</td>
             <td style="padding:6px 10px;font-family:monospace;font-size:12px;">
                 {html.escape(p.document_id)}</td>
             <td style="padding:6px 10px;text-align:center;">{page_str}</td>
@@ -666,7 +720,8 @@ def main() -> None:
             if dist:
                 cols = st.columns(3)
                 for col, (ctype, label) in zip(
-                    cols, [("text", "📄 Text"), ("image_description", "🖼️ Image"), ("table", "📊 Table")],
+                    cols,
+                    [("text", "📄 Text"), ("image_description", "🖼️ Image"), ("table", "📊 Table")],
                     strict=False,
                 ):
                     col.metric(label, dist.get(ctype, 0))
