@@ -22,10 +22,11 @@ def postgres_url():
     from testcontainers.postgres import PostgresContainer
 
     with PostgresContainer("pgvector/pgvector:pg16") as pg:
-        # Replace psycopg2 driver with asyncpg
         sync_url = pg.get_connection_url()
         async_url = sync_url.replace("postgresql+psycopg2://", "postgresql+asyncpg://")
-        yield async_url, sync_url
+        # Strip SQLAlchemy dialect for plain psycopg2.connect()
+        plain_url = sync_url.replace("postgresql+psycopg2://", "postgresql://")
+        yield async_url, plain_url
 
 
 @pytest.fixture(scope="module")
