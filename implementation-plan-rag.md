@@ -343,9 +343,9 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [x] 2.9  Create test dataset: 10 mixed-content PDFs (financial reports, scientific papers)
 [x] 2.10 Run RAGAS evaluation on text-only vs multimodal retrieval — show recall improvement
 [x] 2.11 Write tests for VisionDescriber (mock Claude API) and ProvenanceTracker
-[ ] 2.12 Write standalone README for multimodal_rag/ — architecture diagram, quick start, RAGAS results table, demo GIF
-[ ] 2.13 Build standalone demo.py (Streamlit) — upload PDF, query, see provenance highlighting, runs without full platform
-[ ] 2.14 Write Dockerfile for multimodal_rag/ — independently runnable with `docker run`
+[x] 2.12 Write standalone README for multimodal_rag/ — architecture diagram, quick start, RAGAS results table, demo GIF
+[x] 2.13 Build standalone demo.py (Streamlit) — upload PDF, query, see provenance highlighting, runs without full platform
+[x] 2.14 Write Dockerfile for multimodal_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 3: Corrective RAG (CRAG)
