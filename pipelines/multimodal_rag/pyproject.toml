@@ -15,5 +15,9 @@ dependencies = [
     "pymupdf>=1.24",
 ]
 
+[tool.uv.sources]
+shared = { workspace = true }
+fastest-rag = { workspace = true }
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/multimodal_rag"]

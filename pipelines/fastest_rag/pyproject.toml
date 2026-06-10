@@ -19,5 +19,8 @@ dependencies = [
     "tqdm>=4.66",
 ]
 
+[tool.uv.sources]
+shared = { workspace = true }
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/fastest_rag"]

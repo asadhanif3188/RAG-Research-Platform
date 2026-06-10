@@ -15,5 +15,9 @@ dependencies = [
     "python-multipart>=0.0.9",
 ]
 
+[tool.uv.sources]
+shared = { workspace = true }
+fastest-rag = { workspace = true }
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/api"]
