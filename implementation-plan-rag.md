@@ -91,7 +91,12 @@ rag-research-platform/
 ├── pyproject.toml                  # uv workspace root
 ├── docker-compose.yml              # pgvector, Qdrant, Redis, Neo4j, LangFuse
 ├── .env.example
-├── README.md
+├── README.md                       # Root README linking to each pipeline
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                  # Lint (ruff) + type check (mypy) + unit tests on every PR
+│       ├── integration-tests.yml   # Integration tests with Docker services (on merge to main)
+│       └── eval.yml                # RAGAS evaluation on demand (workflow_dispatch)
 │
 ├── shared/                         # Shared Python package
 │   ├── pyproject.toml
@@ -118,6 +123,9 @@ rag-research-platform/
 ├── pipelines/
 │   ├── fastest_rag/               # Project 3: Fastest RAG Stack
 │   │   ├── pyproject.toml
+│   │   ├── README.md              # Standalone README: architecture, setup, demo, metrics
+│   │   ├── Dockerfile             # Independently runnable container
+│   │   ├── demo.py                # Quick Streamlit/FastAPI demo (runs standalone)
 │   │   └── src/fastest_rag/
 │   │       ├── pipeline.py        # Naive RAG + binary quantized retrieval
 │   │       ├── benchmark.py       # Latency/throughput benchmarking
@@ -125,6 +133,9 @@ rag-research-platform/
 │   │
 │   ├── multimodal_rag/            # Project 4: Multimodal RAG
 │   │   ├── pyproject.toml
+│   │   ├── README.md              # Standalone README: architecture, setup, demo, metrics
+│   │   ├── Dockerfile             # Independently runnable container
+│   │   ├── demo.py                # Quick Streamlit demo with provenance viewer
 │   │   └── src/multimodal_rag/
 │   │       ├── pipeline.py
 │   │       ├── vision_describer.py # GPT-4o/Claude vision for tables+images
@@ -132,6 +143,9 @@ rag-research-platform/
 │   │
 │   ├── corrective_rag/            # Project 2: CRAG
 │   │   ├── pyproject.toml
+│   │   ├── README.md              # Standalone README: architecture, setup, demo, metrics
+│   │   ├── Dockerfile             # Independently runnable container
+│   │   ├── demo.py                # Quick Streamlit demo showing CRAG graph decisions
 │   │   └── src/corrective_rag/
 │   │       ├── graph.py           # LangGraph workflow
 │   │       ├── relevance_grader.py
@@ -140,6 +154,9 @@ rag-research-platform/
 │   │
 │   ├── self_rag/                  # Project 5: Self-RAG
 │   │   ├── pyproject.toml
+│   │   ├── README.md              # Standalone README: architecture, setup, demo, metrics
+│   │   ├── Dockerfile             # Independently runnable container
+│   │   ├── demo.py                # Quick Streamlit demo with graph trace visualization
 │   │   └── src/self_rag/
 │   │       ├── graph.py           # LangGraph stateful graph
 │   │       ├── retrieval_grader.py
@@ -149,6 +166,9 @@ rag-research-platform/
 │   │
 │   └── video_rag/                 # Project 1: MCP Video RAG
 │       ├── pyproject.toml
+│       ├── README.md              # Standalone README: architecture, setup, demo, metrics
+│       ├── Dockerfile             # Independently runnable container
+│       ├── demo.py                # Quick Streamlit demo with video player
 │       └── src/video_rag/
 │           ├── mcp_server.py      # FastMCP server exposing video tools
 │           ├── video_indexer.py   # Whisper + CLIP + timestamp chunking
@@ -241,16 +261,16 @@ dependencies = [
 ## 4. Implementation Phases
 
 ### Phase 0: Shared Infrastructure (Week 1-2)
-Set up the monorepo, shared data models, vector store abstraction, document ingestion pipeline, embedding service, and evaluation harness. All subsequent projects depend on this.
+Set up the monorepo, shared data models, vector store abstraction, document ingestion pipeline, embedding service, and evaluation harness. All subsequent projects depend on this. **Set up GitHub Actions CI/CD** (lint, type check, tests, integration tests, RAGAS eval).
 
 ### Phase 1: Fastest RAG Stack (Week 3-4)
 Build the baseline naive RAG pipeline and add binary quantization. Establish benchmark baselines. Implement Redis semantic cache. Build the benchmark dashboard.
 
 ### Phase 2: Multimodal RAG (Week 5-7)
-Extend the ingestion pipeline with vision model descriptions for images and tables. Build provenance tracking. Implement the provenance viewer UI. Run RAGAS evaluation on mixed-content PDFs.
+Extend the ingestion pipeline with vision model descriptions for images and tables. Build provenance tracking. Implement the provenance viewer UI. Run RAGAS evaluation on mixed-content PDFs. **Ship with standalone README, Dockerfile, and Streamlit demo.**
 
 ### Phase 3: Corrective RAG — CRAG (Week 8-9)
-Build the LangGraph CRAG graph with relevance grading, document decomposition, query rewriting, and Tavily web search fallback. Compare RAGAS metrics against baseline naive RAG.
+Build the LangGraph CRAG graph with relevance grading, document decomposition, query rewriting, and Tavily web search fallback. Compare RAGAS metrics against baseline naive RAG. **Ship with standalone README, Dockerfile, and Streamlit demo.**
 
 ### Phase 4: Self-RAG with LangGraph (Week 10-11)
 Extend CRAG with three decision points: retrieve-or-not, relevance grading, hallucination grading, answer grading. Add HyDE query expansion. Visualize the decision graph execution trace.
@@ -279,6 +299,16 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [x] 0.9  Implement RAGASRunner — faithfulness, answer relevancy, context precision, context recall
 [x] 0.10 Write integration tests for vector store CRUD and embedding service
 [x] 0.11 Write .env.example with all required environment variables
+[ ] 0.12 Set up GitHub Actions CI workflow (.github/workflows/ci.yml):
+      - Lint with ruff, type check with mypy, run unit tests with pytest
+      - Trigger on every PR and push to main
+[ ] 0.13 Set up GitHub Actions integration test workflow (.github/workflows/integration-tests.yml):
+      - Spin up Docker services (pgvector, Redis) via docker-compose
+      - Run integration tests
+      - Trigger on merge to main
+[ ] 0.14 Set up GitHub Actions RAGAS eval workflow (.github/workflows/eval.yml):
+      - Run RAGAS evaluation on demand (workflow_dispatch)
+      - Upload eval results as artifacts
 ```
 
 ### Phase 1: Fastest RAG Stack
@@ -295,6 +325,8 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [x] 1.9  Build Streamlit benchmark dashboard showing live latency charts and cache stats
 [x] 1.10 Run RAGAS evaluation on BQ vs full-precision to show quality trade-off
 [x] 1.11 Write unit tests for BenchmarkRunner and cache layer
+[ ] 1.12 Write standalone README for fastest_rag/ — architecture diagram, benchmark results table, cache stats, demo GIF
+[ ] 1.13 Write Dockerfile for fastest_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 2: Multimodal RAG
@@ -311,6 +343,9 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [x] 2.9  Create test dataset: 10 mixed-content PDFs (financial reports, scientific papers)
 [x] 2.10 Run RAGAS evaluation on text-only vs multimodal retrieval — show recall improvement
 [x] 2.11 Write tests for VisionDescriber (mock Claude API) and ProvenanceTracker
+[ ] 2.12 Write standalone README for multimodal_rag/ — architecture diagram, quick start, RAGAS results table, demo GIF
+[ ] 2.13 Build standalone demo.py (Streamlit) — upload PDF, query, see provenance highlighting, runs without full platform
+[ ] 2.14 Write Dockerfile for multimodal_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 3: Corrective RAG (CRAG)
@@ -327,6 +362,9 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [ ] 3.9  Write test dataset of 50 queries where naive RAG hallucinated (golden answers known)
 [ ] 3.10 Write unit tests for RelevanceGrader, DocumentDecomposer, QueryRewriter
 [ ] 3.11 Write integration test for full CRAG graph end-to-end
+[ ] 3.12 Write standalone README for corrective_rag/ — architecture diagram, graph flowchart, RAGAS comparison table, demo GIF
+[ ] 3.13 Build standalone demo.py (Streamlit) — enter query, see CRAG decision path (RELEVANT/AMBIGUOUS/IRRELEVANT), runs without full platform
+[ ] 3.14 Write Dockerfile for corrective_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 4: Self-RAG with LangGraph
@@ -342,6 +380,9 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [ ] 4.8  Compare Self-RAG vs CRAG vs naive RAG on the same 50-query test set
 [ ] 4.9  Write unit tests for all grader nodes
 [ ] 4.10 Write integration test for full Self-RAG graph with all decision paths exercised
+[ ] 4.11 Write standalone README for self_rag/ — architecture diagram, graph trace examples, RAGAS comparison table, demo GIF
+[ ] 4.12 Build standalone demo.py (Streamlit) — enter query, see full decision graph trace, runs without full platform
+[ ] 4.13 Write Dockerfile for self_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 5: MCP-powered RAG over Videos
@@ -360,6 +401,9 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [ ] 5.11 Test with 5 YouTube lecture videos (download via yt-dlp, index, query)
 [ ] 5.12 Write unit tests for VideoIndexer, SegmentRetriever
 [ ] 5.13 Write integration test for MCP server tools
+[ ] 5.14 Write standalone README for video_rag/ — architecture diagram, MCP tool docs, demo GIF with video playback
+[ ] 5.15 Build standalone demo.py (Streamlit) — upload/link video, query, see timestamped segment, runs without full platform
+[ ] 5.16 Write Dockerfile for video_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 6: Integration & Polish
@@ -424,6 +468,11 @@ WHAT TO BUILD:
    - Compute faithfulness, answer_relevancy, context_precision, context_recall
    - Format results as EvalResult Pydantic model
 9. Create .env.example with all required secrets (OpenAI key, Anthropic key, etc.)
+10. Set up GitHub Actions CI/CD:
+    - .github/workflows/ci.yml: lint (ruff), type check (mypy), unit tests (pytest) — runs on every PR and push to main
+    - .github/workflows/integration-tests.yml: spin up Docker services, run integration tests — runs on merge to main
+    - .github/workflows/eval.yml: RAGAS evaluation on demand (workflow_dispatch), upload results as artifacts
+    - Add ruff.toml and mypy.ini configuration files
 
 TECH STACK:
 - Language: Python 3.12
@@ -433,6 +482,9 @@ TECH STACK:
 - Databases: PostgreSQL 16 + pgvector, Qdrant, Redis, Neo4j
 - Validation: Pydantic v2
 - Vector retrieval: sqlalchemy (pgvector), qdrant-client
+- CI/CD: GitHub Actions (lint, type check, tests, integration tests, RAGAS eval)
+- Linting: ruff
+- Type checking: mypy
 
 TESTING REQUIREMENTS:
 - Write unit tests for VectorStoreClient (mock DB responses)
@@ -456,6 +508,9 @@ SUCCESS CRITERIA (Definition of Done):
 ✓ 10+ integration tests pass
 ✓ All imports in subsequent phases will find shared/ models and utilities
 ✓ README includes "docker-compose up" and setup instructions
+✓ GitHub Actions CI workflow passes: ruff lint, mypy type check, pytest unit tests
+✓ GitHub Actions integration test workflow runs with Docker services
+✓ ruff.toml and mypy.ini configured for the monorepo
 
 COMMIT MESSAGE:
 feat(shared-infrastructure): Initialize monorepo, vector DB abstraction, ingestion pipeline, and evaluation harness
@@ -579,6 +634,16 @@ WHAT TO BUILD:
 9. Run RAGAS evaluation:
    - Compare text-only vs. multimodal retrieval
    - Show recall improvement (should be ~20-30% better for multimodal)
+10. Write standalone README for multimodal_rag/:
+    - Architecture diagram showing ingestion flow (PDF → images/tables → vision model → embeddings)
+    - Quick start: `docker run` or `docker-compose up`
+    - RAGAS comparison table (text-only vs multimodal)
+    - Demo GIF showing provenance highlighting
+11. Build standalone demo.py (Streamlit):
+    - Upload PDF, query, see provenance highlighting with source pages
+    - Runs independently without the full platform
+12. Write Dockerfile for multimodal_rag/:
+    - Independently runnable with `docker run`
 
 TECH STACK:
 - PDF parsing: PyMuPDF (fitz) + PDFPlumber for tables
@@ -586,6 +651,8 @@ TECH STACK:
 - UI component: Chainlit custom element (HTML/SVG based)
 - Metadata storage: Extended DocumentChunk Pydantic model
 - Ranking: hybrid fusion (BM25 for text + semantic for images)
+- Demo: Streamlit standalone app
+- CI: GitHub Actions (lint + type check + tests on every PR)
 
 TESTING REQUIREMENTS:
 - Unit tests for VisionDescriber (mock Claude API)
@@ -603,6 +670,10 @@ SUCCESS CRITERIA:
 ✓ RAGAS context_recall improves by >15% vs. text-only
 ✓ 8+ unit tests pass
 ✓ 1+ integration tests pass
+✓ Standalone README with architecture diagram, RAGAS results table, and demo GIF
+✓ Standalone Streamlit demo runs independently (`docker run` or `python demo.py`)
+✓ Dockerfile builds and runs without errors
+✓ GitHub Actions CI passes (lint + tests) on PR
 
 COMMIT MESSAGE:
 feat(multimodal-rag): Add vision model integration, table extraction, provenance tracking, and source attribution UI
@@ -657,6 +728,17 @@ WHAT TO BUILD:
 8. Run RAGAS evaluation:
    - Compare naive RAG vs. CRAG
    - Show hallucination rate drop (target: 25% → 12%)
+9. Write standalone README for corrective_rag/:
+   - Architecture diagram (CRAG graph flowchart)
+   - Quick start: `docker run` or `docker-compose up`
+   - RAGAS comparison table (naive RAG vs CRAG)
+   - Demo GIF showing the decision path in action
+10. Build standalone demo.py (Streamlit):
+    - Enter query, see CRAG decision path live (RELEVANT/AMBIGUOUS/IRRELEVANT)
+    - Runs independently without the full platform
+11. Write Dockerfile for corrective_rag/:
+    - Independently runnable with `docker run`
+    - Includes docker-compose.override.yml for local dev
 
 TECH STACK:
 - Orchestration: LangGraph with StateGraph
@@ -664,6 +746,8 @@ TECH STACK:
 - LLM (grading): claude-haiku-4-5 (cost optimization)
 - Web search: Tavily API
 - Observability: LangFuse
+- Demo: Streamlit standalone app
+- CI: GitHub Actions (lint + type check + tests on every PR)
 
 TESTING REQUIREMENTS:
 - Unit tests for RelevanceGrader (mock Claude API)
@@ -685,6 +769,10 @@ SUCCESS CRITERIA:
 ✓ LangFuse trace shows all node executions
 ✓ 10+ unit tests pass
 ✓ 3 integration tests pass (one per branch)
+✓ Standalone README with architecture diagram, RAGAS results table, and demo GIF
+✓ Standalone Streamlit demo runs independently (`docker run` or `python demo.py`)
+✓ Dockerfile builds and runs without errors
+✓ GitHub Actions CI passes (lint + tests) on PR
 
 COMMIT MESSAGE:
 feat(corrective-rag): Implement CRAG with relevance grading, document decomposition, and web search fallback
