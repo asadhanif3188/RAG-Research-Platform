@@ -1,21 +1,4 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "rag-research-platform"
-version = "0.1.0"
-description = "RAG Research Platform — unified monorepo for five RAG pipeline strategies"
-requires-python = ">=3.12"
-dependencies = [
-    "shared",
-    "fastest-rag",
-    "multimodal-rag",
-    "api",
-]
-
-[tool.hatch.build.targets.wheel]
-packages = []  # Workspace root — no packages to build
+# Workspace root configuration — workspace members are in [tool.uv.workspace]
 
 [tool.uv.sources]
 shared = { workspace = true }
