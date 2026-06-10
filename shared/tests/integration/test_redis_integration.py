@@ -10,7 +10,7 @@ import pytest_asyncio
 from shared.storage.cache import RedisSemanticCache
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def redis_url():
     pytest.importorskip("testcontainers")
     from testcontainers.redis import RedisContainer
@@ -19,7 +19,7 @@ def redis_url():
         yield f"redis://{redis.get_container_host_ip()}:{redis.get_exposed_port(6379)}/0"
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def cache(redis_url):
     c = RedisSemanticCache(
         redis_url=redis_url,
