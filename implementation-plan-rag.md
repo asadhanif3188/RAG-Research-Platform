@@ -325,8 +325,8 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [x] 1.9  Build Streamlit benchmark dashboard showing live latency charts and cache stats
 [x] 1.10 Run RAGAS evaluation on BQ vs full-precision to show quality trade-off
 [x] 1.11 Write unit tests for BenchmarkRunner and cache layer
-[ ] 1.12 Write standalone README for fastest_rag/ — architecture diagram, benchmark results table, cache stats, demo GIF
-[ ] 1.13 Write Dockerfile for fastest_rag/ — independently runnable with `docker run`
+[x] 1.12 Write standalone README for fastest_rag/ — architecture diagram, benchmark results table, cache stats, demo GIF
+[x] 1.13 Write Dockerfile for fastest_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 2: Multimodal RAG
