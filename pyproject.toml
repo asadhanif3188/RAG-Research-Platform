@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-only-include = ["_virtual"]
+packages = []  # Workspace root — no packages to build
 
 [tool.uv.sources]
 shared = { workspace = true }
