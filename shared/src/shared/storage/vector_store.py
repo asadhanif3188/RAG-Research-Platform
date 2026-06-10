@@ -89,7 +89,7 @@ class PgVectorClient(VectorStoreClient):
             INSERT INTO {self._table}
                 (id, document_id, chunk_index, chunk_type, content, metadata, embedding)
             VALUES
-                (:id, :document_id, :chunk_index, :chunk_type, :content, :metadata::jsonb, :embedding)
+                (:id, :document_id, :chunk_index, :chunk_type, :content, CAST(:metadata AS jsonb), :embedding)
             ON CONFLICT (id) DO UPDATE SET
                 content   = EXCLUDED.content,
                 metadata  = EXCLUDED.metadata,
@@ -142,10 +142,10 @@ class PgVectorClient(VectorStoreClient):
         sql = text(
             f"""
             SELECT id, document_id, content, chunk_type, metadata,
-                   1 - (embedding <=> :query_vec::vector) AS score
+                   1 - (embedding <=> CAST(:query_vec AS vector)) AS score
             FROM {self._table}
             {where_clause}
-            ORDER BY embedding <=> :query_vec::vector
+            ORDER BY embedding <=> CAST(:query_vec AS vector)
             LIMIT :top_k
             """
         )

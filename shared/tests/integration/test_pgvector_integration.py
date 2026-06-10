@@ -15,7 +15,7 @@ from shared.models.document import ChunkType, DocumentChunk
 from shared.storage.vector_store import PgVectorClient
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def postgres_url():
     """Spin up a temporary PostgreSQL container with pgvector."""
     pytest.importorskip("testcontainers")
@@ -29,7 +29,7 @@ def postgres_url():
         yield async_url, plain_url
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def init_schema(postgres_url):
     """Run the pgvector schema init SQL synchronously."""
     import psycopg2
@@ -60,7 +60,7 @@ def init_schema(postgres_url):
     conn.close()
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def pgvector_client(postgres_url, init_schema):
     async_url, _ = postgres_url
     client = PgVectorClient(database_url=async_url)
