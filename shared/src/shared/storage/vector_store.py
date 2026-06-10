@@ -115,9 +115,13 @@ class PgVectorClient(VectorStoreClient):
         ]
 
         async with self._session_factory() as session:
-            result = await session.execute(sql, params)
+            ids: list[str] = []
+            for p in params:
+                result = await session.execute(sql, p)
+                row = result.fetchone()
+                if row:
+                    ids.append(str(row[0]))
             await session.commit()
-            ids = [str(row[0]) for row in result.fetchall()]
             logger.debug("Upserted %d chunks into pgvector", len(ids))
             return ids
 
@@ -176,11 +180,12 @@ class PgVectorClient(VectorStoreClient):
 
         if not chunk_ids:
             return 0
-        sql = text(f"DELETE FROM {self._table} WHERE id = ANY(:ids)")
+        sql = text(f"DELETE FROM {self._table} WHERE id = ANY(CAST(:ids AS text[]))")
         async with self._session_factory() as session:
             result = await session.execute(sql, {"ids": chunk_ids})
+            count = int(result.rowcount)
             await session.commit()
-            return int(result.rowcount)
+            return count
 
     async def delete_document(self, document_id: str) -> int:
         from sqlalchemy import text
@@ -188,8 +193,9 @@ class PgVectorClient(VectorStoreClient):
         sql = text(f"DELETE FROM {self._table} WHERE document_id = :doc_id")
         async with self._session_factory() as session:
             result = await session.execute(sql, {"doc_id": document_id})
+            count = int(result.rowcount)
             await session.commit()
-            return int(result.rowcount)
+            return count
 
     async def get(self, chunk_id: str) -> DocumentChunk | None:
         from sqlalchemy import text
