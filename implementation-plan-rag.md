@@ -299,14 +299,14 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 [x] 0.9  Implement RAGASRunner — faithfulness, answer relevancy, context precision, context recall
 [x] 0.10 Write integration tests for vector store CRUD and embedding service
 [x] 0.11 Write .env.example with all required environment variables
-[ ] 0.12 Set up GitHub Actions CI workflow (.github/workflows/ci.yml):
+[x] 0.12 Set up GitHub Actions CI workflow (.github/workflows/ci.yml):
       - Lint with ruff, type check with mypy, run unit tests with pytest
       - Trigger on every PR and push to main
-[ ] 0.13 Set up GitHub Actions integration test workflow (.github/workflows/integration-tests.yml):
+[x] 0.13 Set up GitHub Actions integration test workflow (.github/workflows/integration-tests.yml):
       - Spin up Docker services (pgvector, Redis) via docker-compose
       - Run integration tests
       - Trigger on merge to main
-[ ] 0.14 Set up GitHub Actions RAGAS eval workflow (.github/workflows/eval.yml):
+[x] 0.14 Set up GitHub Actions RAGAS eval workflow (.github/workflows/eval.yml):
       - Run RAGAS evaluation on demand (workflow_dispatch)
       - Upload eval results as artifacts
 ```
