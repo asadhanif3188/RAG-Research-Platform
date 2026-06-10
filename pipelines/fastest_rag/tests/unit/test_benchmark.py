@@ -63,7 +63,9 @@ class TestBenchmarkReport:
         fp = make_metrics(CollectionVariant.FULL_PRECISION.value, [50.0] * 100, [1.0] * 100)
         bq = make_metrics(CollectionVariant.BINARY_QUANTIZED.value, [20.0] * 100, [0.95] * 100)
         sq = make_metrics(CollectionVariant.SCALAR_QUANTIZED.value, [30.0] * 100, [0.98] * 100)
-        return BenchmarkReport(variants=[fp, bq, sq], vector_size=3072, run_at="2026-01-01T00:00:00Z")
+        return BenchmarkReport(
+            variants=[fp, bq, sq], vector_size=3072, run_at="2026-01-01T00:00:00Z"
+        )
 
     def test_summaries_has_all_variants(self):
         report = self._make_report()

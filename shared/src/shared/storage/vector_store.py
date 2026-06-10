@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from typing import Any
-from uuid import UUID
 
 from shared.models.document import DocumentChunk
 from shared.models.retrieval import RetrievalResult
@@ -51,6 +50,7 @@ class VectorStoreClient(ABC):
 
 
 # ── pgvector backend ──────────────────────────────────────────────────────────
+
 
 class PgVectorClient(VectorStoreClient):
     """PostgreSQL + pgvector backend using SQLAlchemy async."""
@@ -235,6 +235,7 @@ class PgVectorClient(VectorStoreClient):
 
 # ── Qdrant backend ────────────────────────────────────────────────────────────
 
+
 class QdrantVectorClient(VectorStoreClient):
     """Qdrant vector database backend."""
 
@@ -265,9 +266,7 @@ class QdrantVectorClient(VectorStoreClient):
         if self._collection not in existing:
             await self._client.create_collection(
                 collection_name=self._collection,
-                vectors_config=VectorParams(
-                    size=self._vector_size, distance=Distance.COSINE
-                ),
+                vectors_config=VectorParams(size=self._vector_size, distance=Distance.COSINE),
             )
             logger.info("Created Qdrant collection '%s'", self._collection)
 
@@ -308,13 +307,12 @@ class QdrantVectorClient(VectorStoreClient):
         top_k: int = 5,
         filters: dict[str, Any] | None = None,
     ) -> list[RetrievalResult]:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
 
         qdrant_filter = None
         if filters:
             conditions = [
-                FieldCondition(key=k, match=MatchValue(value=v))
-                for k, v in filters.items()
+                FieldCondition(key=k, match=MatchValue(value=v)) for k, v in filters.items()
             ]
             qdrant_filter = Filter(must=conditions)
 
@@ -354,7 +352,7 @@ class QdrantVectorClient(VectorStoreClient):
         return len(chunk_ids)
 
     async def delete_document(self, document_id: str) -> int:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
 
         result = await self._client.delete(
             collection_name=self._collection,

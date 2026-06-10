@@ -85,16 +85,22 @@ class TestNaiveRAGPipeline:
     @pytest.mark.asyncio
     async def test_cache_hit_skips_vector_search(self):
         mock_cache = AsyncMock()
-        mock_cache.get = AsyncMock(return_value={
-            "answer": "Cached answer",
-            "sources": [
-                {
-                    "chunk_id": "c1", "document_id": "d1", "content": "ctx",
-                    "chunk_type": "text", "score": 0.9, "metadata": {}
-                }
-            ],
-            "metadata": {},
-        })
+        mock_cache.get = AsyncMock(
+            return_value={
+                "answer": "Cached answer",
+                "sources": [
+                    {
+                        "chunk_id": "c1",
+                        "document_id": "d1",
+                        "content": "ctx",
+                        "chunk_type": "text",
+                        "score": 0.9,
+                        "metadata": {},
+                    }
+                ],
+                "metadata": {},
+            }
+        )
 
         pipeline, mock_vs, mock_emb = make_pipeline(cache_layer=mock_cache)
         request = QueryRequest(query="What is RAG?", use_cache=True)

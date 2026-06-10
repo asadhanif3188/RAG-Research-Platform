@@ -7,6 +7,7 @@ Requires Docker to be running locally.
 from __future__ import annotations
 
 import math
+
 import pytest
 import pytest_asyncio
 
@@ -31,6 +32,7 @@ def postgres_url():
 def init_schema(postgres_url):
     """Run the pgvector schema init SQL synchronously."""
     import psycopg2
+
     _, sync_url = postgres_url
 
     conn = psycopg2.connect(sync_url)

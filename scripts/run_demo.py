@@ -32,6 +32,7 @@ from __future__ import annotations
 # Ensure UTF-8 output on Windows (cp1252 default terminal cannot encode box chars)
 import io as _io
 import sys as _sys
+
 if hasattr(_sys.stdout, "buffer"):
     _sys.stdout = _io.TextIOWrapper(_sys.stdout.buffer, encoding="utf-8", errors="replace")
 
@@ -42,8 +43,11 @@ import math
 import sys
 import time
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import AsyncMock, MagicMock
+
+if TYPE_CHECKING:
+    from shared.models.query import QueryResponse
 
 # ── Add repo root to path so workspace packages resolve ──────────────────────
 ROOT = Path(__file__).resolve().parent.parent
@@ -53,40 +57,49 @@ sys.path.insert(0, str(ROOT / "pipelines" / "multimodal_rag" / "src"))
 sys.path.insert(0, str(ROOT / "api" / "src"))
 
 # ── ANSI colour helpers ───────────────────────────────────────────────────────
-RESET  = "\033[0m"
-BOLD   = "\033[1m"
-DIM    = "\033[2m"
-GREEN  = "\033[32m"
-CYAN   = "\033[36m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+GREEN = "\033[32m"
+CYAN = "\033[36m"
 YELLOW = "\033[33m"
-BLUE   = "\033[34m"
+BLUE = "\033[34m"
 MAGENTA = "\033[35m"
-RED    = "\033[31m"
+RED = "\033[31m"
+
 
 def h1(text: str) -> None:
     print(f"\n{BOLD}{BLUE}{'=' * 70}{RESET}")
     print(f"{BOLD}{BLUE}  {text}{RESET}")
     print(f"{BOLD}{BLUE}{'=' * 70}{RESET}\n")
 
+
 def h2(text: str) -> None:
     print(f"\n{BOLD}{CYAN}  >> {text}{RESET}")
+
 
 def ok(text: str) -> None:
     print(f"  {GREEN}[OK]{RESET} {text}")
 
+
 def info(text: str) -> None:
     print(f"  {DIM}{text}{RESET}")
+
 
 def warn(text: str) -> None:
     print(f"  {YELLOW}[!] {text}{RESET}")
 
+
 def err(text: str) -> None:
     print(f"  {RED}[ERR]{RESET} {text}")
+
 
 def kv(key: str, value: Any) -> None:
     print(f"  {DIM}{key}:{RESET} {value}")
 
+
 # ── Mock factories ─────────────────────────────────────────────────────────────
+
 
 def make_mock_embedding_service() -> Any:
     """Return a mock EmbeddingService that produces unit vectors."""
@@ -176,17 +189,26 @@ def make_mock_vector_store(multimodal: bool = False) -> Any:
 
 def make_mock_cache(cache_hit: bool = False) -> Any:
     cache = AsyncMock()
-    cache.get = AsyncMock(return_value=None if not cache_hit else {
-        "answer": "This answer was served from the semantic cache.",
-        "sources": [],
-        "metadata": {},
-    })
+    cache.get = AsyncMock(
+        return_value=None
+        if not cache_hit
+        else {
+            "answer": "This answer was served from the semantic cache.",
+            "sources": [],
+            "metadata": {},
+        }
+    )
     cache.set = AsyncMock()
     cache.health_check = AsyncMock(return_value=True)
-    cache.stats = MagicMock(return_value={
-        "hits": 3, "misses": 7, "hit_rate": 0.3,
-        "avg_hit_latency_ms": 1.2, "avg_miss_latency_ms": 4.8,
-    })
+    cache.stats = MagicMock(
+        return_value={
+            "hits": 3,
+            "misses": 7,
+            "hit_rate": 0.3,
+            "avg_hit_latency_ms": 1.2,
+            "avg_miss_latency_ms": 4.8,
+        }
+    )
     cache.connect = AsyncMock()
     return cache
 
@@ -200,6 +222,7 @@ def make_mock_anthropic_client(answer: str) -> Any:
 
 
 # ── Pipeline builders ─────────────────────────────────────────────────────────
+
 
 async def build_fastest_rag_mock(query: str) -> Any:
     from fastest_rag.pipeline import NaiveRAGPipeline
@@ -253,15 +276,15 @@ async def build_multimodal_rag_mock(query: str) -> Any:
 
 async def build_fastest_rag_live() -> Any:
     """Build NaiveRAGPipeline connected to real services (requires .env + Docker)."""
-    import os
     from dotenv import load_dotenv
+
     load_dotenv(ROOT / ".env")
 
+    from fastest_rag.cache_layer import CacheLayer
+    from fastest_rag.pipeline import NaiveRAGPipeline
     from shared.config import get_settings
     from shared.embeddings.service import EmbeddingService
     from shared.storage.vector_store import PgVectorClient
-    from fastest_rag.cache_layer import CacheLayer
-    from fastest_rag.pipeline import NaiveRAGPipeline
 
     settings = get_settings()
     emb_svc = EmbeddingService(
@@ -295,15 +318,15 @@ async def build_fastest_rag_live() -> Any:
 
 async def build_multimodal_rag_live() -> Any:
     """Build MultimodalRAGPipeline connected to real services (requires .env + Docker)."""
-    import os
     from dotenv import load_dotenv
+
     load_dotenv(ROOT / ".env")
 
+    from fastest_rag.cache_layer import CacheLayer
+    from multimodal_rag.pipeline import MultimodalRAGPipeline
     from shared.config import get_settings
     from shared.embeddings.service import EmbeddingService
     from shared.storage.vector_store import PgVectorClient
-    from fastest_rag.cache_layer import CacheLayer
-    from multimodal_rag.pipeline import MultimodalRAGPipeline
 
     settings = get_settings()
     emb_svc = EmbeddingService(
@@ -347,7 +370,6 @@ CHUNK_TYPE_ICONS = {
 
 
 def print_response(response: Any, verbose: bool = False) -> None:
-    from shared.models.query import QueryResponse
 
     r: QueryResponse = response
 
@@ -376,8 +398,10 @@ def print_response(response: Any, verbose: bool = False) -> None:
         for i, s in enumerate(r.sources, 1):
             icon = CHUNK_TYPE_ICONS.get(s.chunk_type, "📄")
             page = f"  page {s.metadata.get('page_number', '?')}"
-            print(f"  {icon} [{i}] {BOLD}{s.document_id}{RESET}{page}  "
-                  f"score={GREEN}{s.score:.3f}{RESET}  type={CYAN}{s.chunk_type}{RESET}")
+            print(
+                f"  {icon} [{i}] {BOLD}{s.document_id}{RESET}{page}  "
+                f"score={GREEN}{s.score:.3f}{RESET}  type={CYAN}{s.chunk_type}{RESET}"
+            )
             if verbose:
                 preview = s.content[:120].replace("\n", " ")
                 print(f"      {DIM}{preview}…{RESET}")
@@ -393,8 +417,10 @@ def print_response(response: Any, verbose: bool = False) -> None:
             bar_len = int(confidence * 20)
             bar = "#" * bar_len + "." * (20 - bar_len)
             sentence_preview = p["sentence"][:70]
-            print(f"  {icon} {CYAN}{bar}{RESET} {confidence:.0%}  "
-                  f"{DIM}{page}  \"{sentence_preview}…\"{RESET}")
+            print(
+                f"  {icon} {CYAN}{bar}{RESET} {confidence:.0%}  "
+                f'{DIM}{page}  "{sentence_preview}…"{RESET}'
+            )
 
     # Chunk type distribution (multimodal only)
     dist = r.metadata.get("chunk_type_distribution", {})
@@ -408,16 +434,23 @@ def print_response(response: Any, verbose: bool = False) -> None:
 def print_comparison(fastest_r: Any, multimodal_r: Any) -> None:
     h1("Side-by-Side Comparison")
     rows = [
-        ("Latency",
-         f"{fastest_r.latency_ms:.1f} ms" if fastest_r.latency_ms else "n/a",
-         f"{multimodal_r.latency_ms:.1f} ms" if multimodal_r.latency_ms else "n/a"),
+        (
+            "Latency",
+            f"{fastest_r.latency_ms:.1f} ms" if fastest_r.latency_ms else "n/a",
+            f"{multimodal_r.latency_ms:.1f} ms" if multimodal_r.latency_ms else "n/a",
+        ),
         ("Sources retrieved", str(len(fastest_r.sources)), str(len(multimodal_r.sources))),
-        ("Cache hit", "yes" if fastest_r.cache_hit else "no",
-         "yes" if multimodal_r.cache_hit else "no"),
-        ("Provenance records", "—",
-         str(len(multimodal_r.metadata.get("provenance", [])))),
-        ("Chunk types", "text only",
-         ", ".join(multimodal_r.metadata.get("chunk_type_distribution", {}).keys()) or "text"),
+        (
+            "Cache hit",
+            "yes" if fastest_r.cache_hit else "no",
+            "yes" if multimodal_r.cache_hit else "no",
+        ),
+        ("Provenance records", "—", str(len(multimodal_r.metadata.get("provenance", [])))),
+        (
+            "Chunk types",
+            "text only",
+            ", ".join(multimodal_r.metadata.get("chunk_type_distribution", {}).keys()) or "text",
+        ),
     ]
     print(f"  {'Metric':<26} {'Fastest RAG':<22} {'Multimodal RAG':<22}")
     print(f"  {'-' * 26} {'-' * 22} {'-' * 22}")
@@ -426,6 +459,7 @@ def print_comparison(fastest_r: Any, multimodal_r: Any) -> None:
 
 
 # ── Main demo logic ───────────────────────────────────────────────────────────
+
 
 async def run_pipeline_demo(
     pipeline_name: str,
@@ -453,7 +487,9 @@ async def run_pipeline_demo(
 
     # Build pipeline
     if live:
-        builder = build_fastest_rag_live if pipeline_name == "fastest_rag" else build_multimodal_rag_live
+        builder = (
+            build_fastest_rag_live if pipeline_name == "fastest_rag" else build_multimodal_rag_live
+        )
         try:
             pipeline = await builder()
         except Exception as exc:
@@ -485,6 +521,7 @@ async def run_pipeline_demo(
         err(f"Pipeline execution failed: {exc}")
         if verbose:
             import traceback
+
             traceback.print_exc()
         return None
 
@@ -499,12 +536,10 @@ async def main(args: argparse.Namespace) -> None:
     query = args.query
     live = args.live
     verbose = args.verbose
-    pipelines = (
-        [args.pipeline] if args.pipeline else ["fastest_rag", "multimodal_rag"]
-    )
+    pipelines = [args.pipeline] if args.pipeline else ["fastest_rag", "multimodal_rag"]
 
     h1("RAG Research Platform — Demo Runner")
-    info(f"Python path includes: shared, fastest_rag, multimodal_rag, api")
+    info("Python path includes: shared, fastest_rag, multimodal_rag, api")
     info(f"Mode: {'LIVE' if live else 'MOCK'}")
     info(f"Pipelines: {', '.join(pipelines)}")
 
@@ -570,9 +605,7 @@ if __name__ == "__main__":
         async def json_mode() -> None:
             from shared.models.query import PipelineStrategy, QueryRequest
 
-            pipelines = (
-                [args.pipeline] if args.pipeline else ["fastest_rag", "multimodal_rag"]
-            )
+            pipelines = [args.pipeline] if args.pipeline else ["fastest_rag", "multimodal_rag"]
             results: dict[str, Any] = {}
             for name in pipelines:
                 build_fn = (

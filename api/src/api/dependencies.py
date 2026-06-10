@@ -7,19 +7,16 @@ via module-level singletons injected through FastAPI's Depends mechanism.
 from __future__ import annotations
 
 import logging
-import os
-from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
 
-from shared.config import get_settings
-from shared.embeddings.service import EmbeddingService
-from shared.storage.vector_store import PgVectorClient
-
 from fastest_rag.cache_layer import CacheLayer
 from fastest_rag.pipeline import NaiveRAGPipeline
 from multimodal_rag.pipeline import MultimodalRAGPipeline
+from shared.config import get_settings
+from shared.embeddings.service import EmbeddingService
+from shared.storage.vector_store import PgVectorClient
 
 logger = logging.getLogger(__name__)
 

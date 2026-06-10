@@ -10,15 +10,18 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import TYPE_CHECKING, Any
 
-from shared.embeddings.service import EmbeddingService
 from shared.ingestion.chunking import ChunkingStrategies, ChunkingStrategy
 from shared.ingestion.pdf_parser import PDFParser
 from shared.models.document import ChunkType, DocumentChunk
-from shared.storage.vector_store import VectorStoreClient
+
+if TYPE_CHECKING:
+    from shared.embeddings.service import EmbeddingService
+    from shared.storage.vector_store import VectorStoreClient
 
 logger = logging.getLogger(__name__)
 
@@ -243,7 +246,7 @@ class DocumentIngestionPipeline:
         texts = [c.content for c in chunks]
         embeddings = await self._embedding_service.embed_batch(texts)
 
-        for chunk, embedding in zip(chunks, embeddings):
+        for chunk, embedding in zip(chunks, embeddings, strict=False):
             chunk.embedding = embedding
 
         return chunks

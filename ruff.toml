@@ -10,3 +10,4 @@ known-first-party = ["shared", "fastest_rag", "multimodal_rag", "corrective_rag"
 
 [lint.per-file-ignores]
 "**/tests/**" = ["S101"]
+"api/**" = ["B008"]

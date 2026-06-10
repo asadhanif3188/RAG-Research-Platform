@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from shared.eval.ragas_runner import RAGASRunner
 from shared.models.retrieval import EvalResult
@@ -15,12 +16,16 @@ class TestRAGASRunner:
         """Pandas-like mock for RAGAS evaluate() result."""
         import pandas as pd
 
-        df = pd.DataFrame([{
-            "faithfulness": 0.85,
-            "answer_relevancy": 0.90,
-            "context_precision": 0.75,
-            "context_recall": 0.80,
-        }])
+        df = pd.DataFrame(
+            [
+                {
+                    "faithfulness": 0.85,
+                    "answer_relevancy": 0.90,
+                    "context_precision": 0.75,
+                    "context_recall": 0.80,
+                }
+            ]
+        )
         result = MagicMock()
         result.to_pandas.return_value = df
         return result
@@ -30,8 +35,10 @@ class TestRAGASRunner:
         runner = RAGASRunner(llm=MagicMock(), embeddings=MagicMock())
         runner._initialized = True
 
-        with patch("shared.eval.ragas_runner.evaluate", return_value=mock_eval_result_df), \
-             patch("shared.eval.ragas_runner.Dataset"):
+        with (
+            patch("ragas.evaluate", return_value=mock_eval_result_df),
+            patch("datasets.Dataset"),
+        ):
             result = await runner.evaluate(
                 query="What is RAG?",
                 answer="RAG stands for Retrieval-Augmented Generation.",
@@ -54,16 +61,23 @@ class TestRAGASRunner:
 
         # Remove context_recall from df since no ground_truth
         import pandas as pd
-        df_no_recall = pd.DataFrame([{
-            "faithfulness": 0.85,
-            "answer_relevancy": 0.90,
-            "context_precision": 0.75,
-        }])
+
+        df_no_recall = pd.DataFrame(
+            [
+                {
+                    "faithfulness": 0.85,
+                    "answer_relevancy": 0.90,
+                    "context_precision": 0.75,
+                }
+            ]
+        )
         mock_result = MagicMock()
         mock_result.to_pandas.return_value = df_no_recall
 
-        with patch("shared.eval.ragas_runner.evaluate", return_value=mock_result), \
-             patch("shared.eval.ragas_runner.Dataset"):
+        with (
+            patch("ragas.evaluate", return_value=mock_result),
+            patch("datasets.Dataset"),
+        ):
             result = await runner.evaluate(
                 query="What is RAG?",
                 answer="RAG is a retrieval technique.",
@@ -77,11 +91,11 @@ class TestRAGASRunner:
         runner = RAGASRunner(llm=MagicMock(), embeddings=MagicMock())
         runner._initialized = True
 
-        with patch("shared.eval.ragas_runner.evaluate", side_effect=RuntimeError("API error")), \
-             patch("shared.eval.ragas_runner.Dataset"):
-            result = await runner.evaluate(
-                query="q", answer="a", contexts=["c"]
-            )
+        with (
+            patch("ragas.evaluate", side_effect=RuntimeError("API error")),
+            patch("datasets.Dataset"),
+        ):
+            result = await runner.evaluate(query="q", answer="a", contexts=["c"])
 
         assert isinstance(result, EvalResult)
         assert result.faithfulness is None
@@ -93,10 +107,13 @@ class TestRAGASRunner:
         runner._initialized = True
 
         import pandas as pd
-        df = pd.DataFrame([
-            {"faithfulness": 0.8, "answer_relevancy": 0.9, "context_precision": 0.7},
-            {"faithfulness": 0.7, "answer_relevancy": 0.85, "context_precision": 0.65},
-        ])
+
+        df = pd.DataFrame(
+            [
+                {"faithfulness": 0.8, "answer_relevancy": 0.9, "context_precision": 0.7},
+                {"faithfulness": 0.7, "answer_relevancy": 0.85, "context_precision": 0.65},
+            ]
+        )
         mock_result = MagicMock()
         mock_result.to_pandas.return_value = df
 
@@ -105,8 +122,10 @@ class TestRAGASRunner:
             {"query": "q2", "answer": "a2", "contexts": ["c2"]},
         ]
 
-        with patch("shared.eval.ragas_runner.evaluate", return_value=mock_result), \
-             patch("shared.eval.ragas_runner.Dataset"):
+        with (
+            patch("ragas.evaluate", return_value=mock_result),
+            patch("datasets.Dataset"),
+        ):
             results = await runner.evaluate_batch(samples, pipeline="test")
 
         assert len(results) == 2

@@ -90,8 +90,7 @@ class TableExtractor:
 
         # Normalise: replace None, strip whitespace
         rows: list[list[str]] = [
-            [str(cell).strip() if cell is not None else "" for cell in row]
-            for row in table_data
+            [str(cell).strip() if cell is not None else "" for cell in row] for row in table_data
         ]
 
         col_count = max(len(row) for row in rows)
@@ -102,8 +101,7 @@ class TableExtractor:
         rows = [row + [""] * (col_count - len(row)) for row in rows]
 
         col_widths = [
-            max(max(len(rows[r][c]) for r in range(len(rows))), 3)
-            for c in range(col_count)
+            max(max(len(rows[r][c]) for r in range(len(rows))), 3) for c in range(col_count)
         ]
 
         def fmt_row(row: list[str]) -> str:

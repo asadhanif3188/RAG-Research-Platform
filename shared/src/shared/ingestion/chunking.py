@@ -34,6 +34,7 @@ class BaseChunker(ABC):
 
 # ── Fixed-size chunker ────────────────────────────────────────────────────────
 
+
 class FixedSizeChunker(BaseChunker):
     """Split text into chunks of approximately `chunk_size` tokens with `overlap` token overlap.
 
@@ -80,6 +81,7 @@ class FixedSizeChunker(BaseChunker):
 
 # ── Sliding-window chunker ────────────────────────────────────────────────────
 
+
 class SlidingWindowChunker(BaseChunker):
     """Sentence-aware sliding window — preserves sentence boundaries.
 
@@ -125,6 +127,20 @@ class SlidingWindowChunker(BaseChunker):
                 flush()
                 # Slide: keep last step_size words as context
                 current_words = current_words[-self._step_size :] + words
+                # If a single sentence is larger than chunk_size, split it into multiple chunks
+                while len(current_words) > self._chunk_size:
+                    chunk_words = current_words[: self._chunk_size]
+                    chunks.append(
+                        DocumentChunk(
+                            document_id=document_id,
+                            chunk_index=chunk_idx,
+                            chunk_type=chunk_type,
+                            content=" ".join(chunk_words),
+                            metadata=metadata or {},
+                        )
+                    )
+                    chunk_idx += 1
+                    current_words = current_words[self._step_size :]
             else:
                 current_words.extend(words)
 
@@ -134,6 +150,7 @@ class SlidingWindowChunker(BaseChunker):
 
 
 # ── Semantic chunker ─────────────────────────────────────────────────────────
+
 
 class SemanticChunker(BaseChunker):
     """Paragraph-boundary chunker that groups paragraphs until a size threshold.
@@ -202,6 +219,7 @@ class SemanticChunker(BaseChunker):
 
 
 # ── Factory ───────────────────────────────────────────────────────────────────
+
 
 class ChunkingStrategies:
     """Factory for chunking strategy instances."""

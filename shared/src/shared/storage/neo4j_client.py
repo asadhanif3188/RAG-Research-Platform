@@ -30,9 +30,7 @@ class Neo4jClient:
     async def connect(self) -> None:
         from neo4j import AsyncGraphDatabase
 
-        self._driver = AsyncGraphDatabase.driver(
-            self._uri, auth=(self._user, self._password)
-        )
+        self._driver = AsyncGraphDatabase.driver(self._uri, auth=(self._user, self._password))
         logger.info("Neo4jClient connected to %s", self._uri)
 
     async def close(self) -> None:
@@ -41,9 +39,7 @@ class Neo4jClient:
 
     # ── Video node CRUD ───────────────────────────────────────────────────────
 
-    async def upsert_video(
-        self, video_id: str, title: str, url: str, duration_s: float
-    ) -> None:
+    async def upsert_video(self, video_id: str, title: str, url: str, duration_s: float) -> None:
         query = """
         MERGE (v:Video {id: $video_id})
         SET v.title = $title, v.url = $url, v.duration_s = $duration_s

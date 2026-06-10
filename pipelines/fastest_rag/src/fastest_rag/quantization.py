@@ -55,9 +55,7 @@ class QuantizationSetup:
     async def connect(self) -> None:
         from qdrant_client import AsyncQdrantClient
 
-        self._client = AsyncQdrantClient(
-            host=self._host, port=self._port, api_key=self._api_key
-        )
+        self._client = AsyncQdrantClient(host=self._host, port=self._port, api_key=self._api_key)
         logger.info("QuantizationSetup connected to Qdrant at %s:%d", self._host, self._port)
 
     async def close(self) -> None:
@@ -156,9 +154,7 @@ class QuantizationSetup:
             for batch_start in range(0, n_vectors, _BATCH_SIZE):
                 batch_size = min(_BATCH_SIZE, n_vectors - batch_start)
                 points = self._make_points(batch_start, batch_size, vector_size)
-                await self._client.upsert(
-                    collection_name=variant.value, points=points, wait=False
-                )
+                await self._client.upsert(collection_name=variant.value, points=points, wait=False)
 
             elapsed = time.perf_counter() - start
             vps = n_vectors / elapsed

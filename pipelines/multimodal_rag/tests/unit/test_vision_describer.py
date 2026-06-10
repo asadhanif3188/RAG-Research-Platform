@@ -41,9 +41,7 @@ class TestVisionDescriberDescribeImage:
     @pytest.mark.asyncio
     async def test_describe_image_passes_base64(self, describer_with_mock):
         describer, mock_client = describer_with_mock
-        mock_client.messages.create = AsyncMock(
-            return_value=_make_mock_message("Description")
-        )
+        mock_client.messages.create = AsyncMock(return_value=_make_mock_message("Description"))
 
         image_bytes = b"fake image data"
         await describer.describe_image(image_bytes)
@@ -59,9 +57,7 @@ class TestVisionDescriberDescribeImage:
     @pytest.mark.asyncio
     async def test_describe_image_with_context(self, describer_with_mock):
         describer, mock_client = describer_with_mock
-        mock_client.messages.create = AsyncMock(
-            return_value=_make_mock_message("Annotated figure")
-        )
+        mock_client.messages.create = AsyncMock(return_value=_make_mock_message("Annotated figure"))
 
         await describer.describe_image(b"img", context="Annual report 2024")
 
@@ -131,7 +127,9 @@ class TestVisionDescriberExtractTable:
     async def test_extract_table_tracks_tokens(self, describer_with_mock):
         describer, mock_client = describer_with_mock
         mock_client.messages.create = AsyncMock(
-            return_value=_make_mock_message("| A |\n|---|\n| 1 |", input_tokens=300, output_tokens=100)
+            return_value=_make_mock_message(
+                "| A |\n|---|\n| 1 |", input_tokens=300, output_tokens=100
+            )
         )
 
         await describer.extract_table(table_text="A\n1")

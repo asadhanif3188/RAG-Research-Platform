@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from shared.models.document import ChunkType, DocumentChunk
-from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
+from shared.models.query import PipelineStrategy, QueryRequest
 from shared.models.retrieval import EvalResult, RetrievalResult
 
 
@@ -64,18 +64,12 @@ class TestQueryRequest:
 class TestRetrievalResult:
     def test_score_bounds(self):
         with pytest.raises(ValidationError):
-            RetrievalResult(
-                chunk_id="c1", document_id="d1", content="x", score=1.5
-            )
+            RetrievalResult(chunk_id="c1", document_id="d1", content="x", score=1.5)
         with pytest.raises(ValidationError):
-            RetrievalResult(
-                chunk_id="c1", document_id="d1", content="x", score=-0.1
-            )
+            RetrievalResult(chunk_id="c1", document_id="d1", content="x", score=-0.1)
 
     def test_valid_result(self):
-        r = RetrievalResult(
-            chunk_id="c1", document_id="d1", content="hello", score=0.92
-        )
+        r = RetrievalResult(chunk_id="c1", document_id="d1", content="hello", score=0.92)
         assert r.score == 0.92
 
 

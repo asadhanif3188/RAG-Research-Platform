@@ -83,7 +83,9 @@ class ProvenanceViewer:
         """Render the full provenance view as an HTML string."""
         # Build chunk_id → colour index mapping
         chunk_ids = list(dict.fromkeys(p.chunk_id for p in self.provenance))
-        colour_map = {cid: _CHUNK_COLOURS[i % len(_CHUNK_COLOURS)] for i, cid in enumerate(chunk_ids)}
+        colour_map = {
+            cid: _CHUNK_COLOURS[i % len(_CHUNK_COLOURS)] for i, cid in enumerate(chunk_ids)
+        }
 
         highlighted_answer = self._highlight_sentences(colour_map)
         attribution_table = self._attribution_table(colour_map)
@@ -109,6 +111,7 @@ class ProvenanceViewer:
         sentence_map: dict[str, str] = {p.sentence: p.chunk_id for p in self.provenance}
 
         import re
+
         sentences = re.split(r"(?<=[.!?])\s+", self.answer.strip())
         parts: list[str] = []
 
@@ -129,7 +132,9 @@ class ProvenanceViewer:
     def _attribution_table(self, colour_map: dict[str, str]) -> str:
         """Return an HTML attribution table for all provenance records."""
         if not self.provenance:
-            return '<p style="color: #94a3b8; font-size: 13px;">No source attribution available.</p>'
+            return (
+                '<p style="color: #94a3b8; font-size: 13px;">No source attribution available.</p>'
+            )
 
         rows = ""
         for p in self.provenance:
@@ -212,7 +217,7 @@ class ProvenanceViewer:
             page_info = f", page {p.page_number}" if p.page_number else ""
             lines.append(
                 f"- {icon} `{p.chunk_type}` — **{p.document_id}**{page_info} "
-                f"(confidence: {p.confidence:.0%}): *\"{p.sentence[:60]}…\"*"
+                f'(confidence: {p.confidence:.0%}): *"{p.sentence[:60]}…"*'
             )
 
         return "\n".join(lines)

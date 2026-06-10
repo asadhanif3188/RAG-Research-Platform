@@ -11,7 +11,6 @@ from shared.ingestion.chunking import (
 )
 from shared.models.document import ChunkType
 
-
 LONG_TEXT = " ".join([f"word{i}" for i in range(1200)])  # 1200-word document
 
 PARAGRAPH_TEXT = """

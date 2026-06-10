@@ -46,5 +46,6 @@ def sample_chunks() -> list[DocumentChunk]:
 def fake_embedding() -> list[float]:
     """Deterministic 3072-dim unit vector for tests."""
     import math
+
     vec = [1.0 / math.sqrt(3072)] * 3072
     return vec

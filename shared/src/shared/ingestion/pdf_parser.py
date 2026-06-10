@@ -85,7 +85,6 @@ class PDFParser:
         )
 
     def _parse_page(self, page: Any, page_number: int) -> ParsedPage:
-        import fitz
 
         # Extract text blocks
         blocks = page.get_text("blocks")  # (x0, y0, x1, y1, text, block_no, block_type)
@@ -200,8 +199,8 @@ class PDFParser:
     @staticmethod
     def _looks_like_table(text: str) -> bool:
         """Heuristic: if >30% of lines contain tab/pipe chars, treat as table."""
-        lines = [l for l in text.splitlines() if l.strip()]
+        lines = [line for line in text.splitlines() if line.strip()]
         if not lines:
             return False
-        table_lines = sum(1 for l in lines if "\t" in l or "|" in l or "  " * 3 in l)
+        table_lines = sum(1 for line in lines if "\t" in line or "|" in line or "  " * 3 in line)
         return table_lines / len(lines) > 0.3

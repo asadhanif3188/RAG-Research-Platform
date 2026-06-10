@@ -5,7 +5,6 @@ from __future__ import annotations
 import pytest
 
 from multimodal_rag.provenance import ProvenanceTracker, _jaccard, _tokenize
-from shared.models.document import ChunkType
 from shared.models.retrieval import RetrievalResult
 
 
@@ -74,9 +73,7 @@ class TestProvenanceTracker:
         self.tracker = ProvenanceTracker(min_confidence=0.05)
 
     def test_track_returns_records_for_matching_sentences(self):
-        sources = [
-            make_source("c1", "RAG combines retrieval with generation to answer questions.")
-        ]
+        sources = [make_source("c1", "RAG combines retrieval with generation to answer questions.")]
         answer = "RAG combines retrieval with generation to answer questions accurately."
         records = self.tracker.track(answer, sources)
         assert len(records) >= 1
@@ -100,7 +97,9 @@ class TestProvenanceTracker:
 
     def test_record_includes_page_number(self):
         sources = [
-            make_source("c1", "The neural network achieved accuracy on the test set.", page_number=5)
+            make_source(
+                "c1", "The neural network achieved accuracy on the test set.", page_number=5
+            )
         ]
         answer = "The neural network accuracy was tested on the validation set evaluation."
         records = self.tracker.track(answer, sources)
@@ -109,7 +108,9 @@ class TestProvenanceTracker:
 
     def test_record_includes_chunk_type(self):
         sources = [
-            make_source("c1", "Revenue grew by 42 percent in Q3 quarter results.", chunk_type="table")
+            make_source(
+                "c1", "Revenue grew by 42 percent in Q3 quarter results.", chunk_type="table"
+            )
         ]
         answer = "Revenue grew by 42 percent in Q3 quarter financial results."
         records = self.tracker.track(answer, sources)

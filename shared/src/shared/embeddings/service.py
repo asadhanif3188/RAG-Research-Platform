@@ -33,7 +33,7 @@ class EmbeddingService:
         model: str = "text-embedding-3-large",
         dimensions: int = 3072,
         batch_size: int = 100,
-        cache: "RedisSemanticCache | None" = None,
+        cache: RedisSemanticCache | None = None,
     ) -> None:
         self._api_key = api_key
         self._model = model
@@ -50,7 +50,9 @@ class EmbeddingService:
         from openai import AsyncOpenAI
 
         self._client = AsyncOpenAI(api_key=self._api_key)
-        logger.info("EmbeddingService initialised (model=%s, dims=%d)", self._model, self._dimensions)
+        logger.info(
+            "EmbeddingService initialised (model=%s, dims=%d)", self._model, self._dimensions
+        )
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -90,7 +92,7 @@ class EmbeddingService:
             uncached_texts = [texts[i] for i in uncached_indices]
             fresh_embeddings = await self._embed_in_batches(uncached_texts)
 
-            for idx, embedding in zip(uncached_indices, fresh_embeddings):
+            for idx, embedding in zip(uncached_indices, fresh_embeddings, strict=False):
                 embeddings[idx] = embedding
                 # Store in cache
                 if self._cache:
@@ -110,10 +112,7 @@ class EmbeddingService:
 
     async def _embed_in_batches(self, texts: list[str]) -> list[list[float]]:
         """Split texts into batches and call OpenAI in parallel (max 5 concurrent)."""
-        batches = [
-            texts[i : i + self._batch_size]
-            for i in range(0, len(texts), self._batch_size)
-        ]
+        batches = [texts[i : i + self._batch_size] for i in range(0, len(texts), self._batch_size)]
         semaphore = asyncio.Semaphore(5)
 
         async def embed_one_batch(batch: list[str]) -> list[list[float]]:

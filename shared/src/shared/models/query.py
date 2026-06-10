@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
-from shared.models.retrieval import RetrievalResult
+if TYPE_CHECKING:
+    from shared.models.retrieval import RetrievalResult
 
 
 class PipelineStrategy(StrEnum):

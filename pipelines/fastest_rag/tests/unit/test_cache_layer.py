@@ -57,11 +57,13 @@ class TestCacheLayer:
     async def test_hit_rate_calculation(self, layer_with_mock_cache):
         layer, mock_cache = layer_with_mock_cache
         # 2 hits, 1 miss
-        mock_cache.get = AsyncMock(side_effect=[
-            {"answer": "hit 1"},
-            None,
-            {"answer": "hit 2"},
-        ])
+        mock_cache.get = AsyncMock(
+            side_effect=[
+                {"answer": "hit 1"},
+                None,
+                {"answer": "hit 2"},
+            ]
+        )
 
         for q in ["q1", "q2", "q3"]:
             await layer.get(q)

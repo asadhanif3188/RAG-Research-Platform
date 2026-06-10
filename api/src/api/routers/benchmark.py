@@ -38,7 +38,10 @@ async def run_benchmark(
         top_k=request.top_k,
         vector_size=request.vector_size,
     )
-    return {"status": "started", "message": f"Benchmarking {request.n_queries} queries in background"}
+    return {
+        "status": "started",
+        "message": f"Benchmarking {request.n_queries} queries in background",
+    }
 
 
 @router.get(
@@ -60,16 +63,16 @@ async def get_result(filename: str) -> dict[str, Any]:
     if not path.exists() or not filename.endswith(".json"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Result not found")
     import json
+
     return json.loads(path.read_text())
 
 
-async def _run_benchmark_task(
-    n_queries: int, top_k: int, vector_size: int
-) -> None:
+async def _run_benchmark_task(n_queries: int, top_k: int, vector_size: int) -> None:
     """Background task that runs the benchmark and saves results."""
     import datetime
-    from shared.config import get_settings
+
     from fastest_rag.benchmark import BenchmarkRunner
+    from shared.config import get_settings
 
     logger.info("Background benchmark started: %d queries, top_k=%d", n_queries, top_k)
 
@@ -81,9 +84,7 @@ async def _run_benchmark_task(
             qdrant_api_key=settings.qdrant_api_key,
         )
         await runner.connect()
-        report = await runner.run(
-            n_queries=n_queries, top_k=top_k, vector_size=vector_size
-        )
+        report = await runner.run(n_queries=n_queries, top_k=top_k, vector_size=vector_size)
         await runner.close()
 
         RESULTS_DIR.mkdir(exist_ok=True)

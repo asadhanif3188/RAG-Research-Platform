@@ -40,7 +40,8 @@ class EvalResult(BaseModel):
     def aggregate_score(self) -> float | None:
         """Mean of all non-None RAGAS metrics."""
         scores = [
-            s for s in [
+            s
+            for s in [
                 self.faithfulness,
                 self.answer_relevancy,
                 self.context_precision,

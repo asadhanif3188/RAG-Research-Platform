@@ -87,6 +87,7 @@ class TestTableExtractorPdfExtraction:
         fake_pdf.write_bytes(b"dummy")
 
         import builtins
+
         real_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):

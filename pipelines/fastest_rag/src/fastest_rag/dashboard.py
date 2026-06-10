@@ -69,27 +69,31 @@ def build_latency_df(summaries: list[dict[str, Any]]) -> pd.DataFrame:
 
 
 def build_qps_df(summaries: list[dict[str, Any]]) -> pd.DataFrame:
-    return pd.DataFrame([
-        {
-            "Variant": VARIANT_LABELS.get(s["variant"], s["variant"]),
-            "QPS": s["qps"],
-        }
-        for s in summaries
-    ])
+    return pd.DataFrame(
+        [
+            {
+                "Variant": VARIANT_LABELS.get(s["variant"], s["variant"]),
+                "QPS": s["qps"],
+            }
+            for s in summaries
+        ]
+    )
 
 
 def build_recall_df(summaries: list[dict[str, Any]]) -> pd.DataFrame:
-    return pd.DataFrame([
-        {
-            "Variant": VARIANT_LABELS.get(s["variant"], s["variant"]),
-            "Recall@k": s["recall_at_k"],
-            "p50 (ms)": s["p50_ms"],
-            "p95 (ms)": s["p95_ms"],
-            "p99 (ms)": s["p99_ms"],
-            "QPS": s["qps"],
-        }
-        for s in summaries
-    ])
+    return pd.DataFrame(
+        [
+            {
+                "Variant": VARIANT_LABELS.get(s["variant"], s["variant"]),
+                "Recall@k": s["recall_at_k"],
+                "p50 (ms)": s["p50_ms"],
+                "p95 (ms)": s["p95_ms"],
+                "p99 (ms)": s["p99_ms"],
+                "QPS": s["qps"],
+            }
+            for s in summaries
+        ]
+    )
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -115,6 +119,7 @@ auto_refresh = st.sidebar.checkbox("Auto-refresh (10s)", value=False)
 
 if auto_refresh:
     import time
+
     time.sleep(10)
     st.rerun()
 
@@ -144,7 +149,9 @@ metadata = report.get("metadata", {})
 speedup = report.get("speedup_vs_full_precision", {})
 recall_drop = report.get("recall_drop_vs_full_precision", {})
 
-st.caption(f"Run at: {run_at} · {metadata.get('n_queries', '?')} queries · top_k={metadata.get('top_k', '?')}")
+st.caption(
+    f"Run at: {run_at} · {metadata.get('n_queries', '?')} queries · top_k={metadata.get('top_k', '?')}"
+)
 
 # ── KPI metrics ───────────────────────────────────────────────────────────────
 col1, col2, col3, col4 = st.columns(4)
@@ -200,27 +207,36 @@ with col_right:
     if speedup:
         labels = [VARIANT_LABELS.get(k, k) for k in speedup]
         values = list(speedup.values())
-        fig_speedup = go.Figure(go.Bar(
-            x=labels,
-            y=values,
-            text=[f"{v:.2f}×" for v in values],
-            textposition="outside",
-            marker_color=[VARIANT_COLORS.get(label, "#888") for label in labels],
-        ))
-        fig_speedup.add_hline(y=1.0, line_dash="dash", line_color="grey", annotation_text="baseline")
+        fig_speedup = go.Figure(
+            go.Bar(
+                x=labels,
+                y=values,
+                text=[f"{v:.2f}×" for v in values],
+                textposition="outside",
+                marker_color=[VARIANT_COLORS.get(label, "#888") for label in labels],
+            )
+        )
+        fig_speedup.add_hline(
+            y=1.0, line_dash="dash", line_color="grey", annotation_text="baseline"
+        )
         fig_speedup.update_layout(height=350, yaxis_title="Speedup factor (×)")
         st.plotly_chart(fig_speedup, use_container_width=True)
 
 # ── Recall table ──────────────────────────────────────────────────────────────
 st.subheader("Recall@k & Full Metrics")
 recall_df = build_recall_df(summaries)
-st.dataframe(recall_df.style.format({
-    "Recall@k": "{:.4f}",
-    "p50 (ms)": "{:.2f}",
-    "p95 (ms)": "{:.2f}",
-    "p99 (ms)": "{:.2f}",
-    "QPS": "{:.0f}",
-}).background_gradient(subset=["Recall@k"], cmap="RdYlGn"), use_container_width=True)
+st.dataframe(
+    recall_df.style.format(
+        {
+            "Recall@k": "{:.4f}",
+            "p50 (ms)": "{:.2f}",
+            "p95 (ms)": "{:.2f}",
+            "p99 (ms)": "{:.2f}",
+            "QPS": "{:.0f}",
+        }
+    ).background_gradient(subset=["Recall@k"], cmap="RdYlGn"),
+    use_container_width=True,
+)
 
 # ── Cache stats ───────────────────────────────────────────────────────────────
 st.markdown("---")

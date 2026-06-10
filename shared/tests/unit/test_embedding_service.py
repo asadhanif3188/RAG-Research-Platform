@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from shared.embeddings.service import EmbeddingService
 
@@ -13,8 +14,7 @@ def make_fake_response(texts: list[str], dims: int = 3072):
     """Build a mock OpenAI embeddings response."""
     response = MagicMock()
     response.data = [
-        MagicMock(index=i, embedding=[1.0 / math.sqrt(dims)] * dims)
-        for i in range(len(texts))
+        MagicMock(index=i, embedding=[1.0 / math.sqrt(dims)] * dims) for i in range(len(texts))
     ]
     response.usage = MagicMock(total_tokens=len(texts) * 10)
     return response
@@ -84,9 +84,7 @@ class TestEmbeddingService:
         mock_cache.cache_embedding = AsyncMock()
         svc._cache = mock_cache
 
-        mock_client.embeddings.create = AsyncMock(
-            return_value=make_fake_response(["new text"])
-        )
+        mock_client.embeddings.create = AsyncMock(return_value=make_fake_response(["new text"]))
         results = await svc.embed_batch(["new text"])
         assert len(results) == 1
         mock_cache.cache_embedding.assert_called_once()

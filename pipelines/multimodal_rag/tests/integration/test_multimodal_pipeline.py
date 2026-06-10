@@ -6,12 +6,11 @@ infrastructure is required.
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from httpx import AsyncClient, ASGITransport
+import pytest
+from httpx import ASGITransport, AsyncClient
 
-from shared.models.query import PipelineStrategy, QueryRequest
 from shared.models.retrieval import RetrievalResult
 
 
@@ -19,8 +18,8 @@ from shared.models.retrieval import RetrievalResult
 @pytest.mark.integration
 async def test_multimodal_rag_e2e():
     """POST /query with pipeline=multimodal_rag returns a valid QueryResponse with provenance."""
-    from api.main import app
     from api import dependencies
+    from api.main import app
 
     # Build mocks
     fake_embedding = [0.1] * 3072
@@ -30,24 +29,26 @@ async def test_multimodal_rag_e2e():
     mock_emb_svc.total_cost_usd = 0.000002
 
     mock_vector_store = AsyncMock()
-    mock_vector_store.search = AsyncMock(return_value=[
-        RetrievalResult(
-            chunk_id="c1",
-            document_id="paper-1",
-            content="Multimodal RAG retrieves both text and image descriptions for richer context.",
-            chunk_type="text",
-            score=0.92,
-            metadata={"page_number": 3},
-        ),
-        RetrievalResult(
-            chunk_id="c2",
-            document_id="paper-1",
-            content="Figure 2 shows a bar chart of retrieval recall across three chunk types.",
-            chunk_type="image_description",
-            score=0.85,
-            metadata={"page_number": 4},
-        ),
-    ])
+    mock_vector_store.search = AsyncMock(
+        return_value=[
+            RetrievalResult(
+                chunk_id="c1",
+                document_id="paper-1",
+                content="Multimodal RAG retrieves both text and image descriptions for richer context.",
+                chunk_type="text",
+                score=0.92,
+                metadata={"page_number": 3},
+            ),
+            RetrievalResult(
+                chunk_id="c2",
+                document_id="paper-1",
+                content="Figure 2 shows a bar chart of retrieval recall across three chunk types.",
+                chunk_type="image_description",
+                score=0.85,
+                metadata={"page_number": 4},
+            ),
+        ]
+    )
 
     mock_cache = AsyncMock()
     mock_cache.get = AsyncMock(return_value=None)
@@ -56,16 +57,19 @@ async def test_multimodal_rag_e2e():
     mock_cache.stats = MagicMock(return_value={"hits": 0, "misses": 1, "hit_rate": 0.0})
 
     mock_message = MagicMock()
-    mock_message.content = [MagicMock(
-        text=(
-            "Multimodal RAG retrieves both text and image descriptions for richer context. "
-            "Figure 2 shows retrieval recall across chunk types."
+    mock_message.content = [
+        MagicMock(
+            text=(
+                "Multimodal RAG retrieves both text and image descriptions for richer context. "
+                "Figure 2 shows retrieval recall across chunk types."
+            )
         )
-    )]
+    ]
     mock_anthropic = AsyncMock()
     mock_anthropic.messages.create = AsyncMock(return_value=mock_message)
 
     from multimodal_rag.pipeline import MultimodalRAGPipeline
+
     pipeline = MultimodalRAGPipeline(
         vector_store=mock_vector_store,
         embedding_service=mock_emb_svc,
@@ -109,8 +113,8 @@ async def test_multimodal_rag_e2e():
 @pytest.mark.integration
 async def test_multimodal_cache_hit():
     """Cached multimodal response is returned immediately."""
-    from api.main import app
     from api import dependencies
+    from api.main import app
 
     mock_emb_svc = AsyncMock()
     mock_emb_svc.embed = AsyncMock(return_value=[0.1] * 3072)
@@ -119,13 +123,16 @@ async def test_multimodal_cache_hit():
 
     mock_vector_store = AsyncMock()
     mock_cache = AsyncMock()
-    mock_cache.get = AsyncMock(return_value={
-        "answer": "Cached multimodal answer.",
-        "sources": [],
-        "metadata": {"provenance": [], "chunk_type_distribution": {}},
-    })
+    mock_cache.get = AsyncMock(
+        return_value={
+            "answer": "Cached multimodal answer.",
+            "sources": [],
+            "metadata": {"provenance": [], "chunk_type_distribution": {}},
+        }
+    )
 
     from multimodal_rag.pipeline import MultimodalRAGPipeline
+
     pipeline = MultimodalRAGPipeline(
         vector_store=mock_vector_store,
         embedding_service=mock_emb_svc,

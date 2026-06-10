@@ -101,31 +101,22 @@ class BenchmarkReport:
         baseline: CollectionVariant = CollectionVariant.FULL_PRECISION,
     ) -> dict[str, float]:
         """Compute p99 latency speedup of each variant vs the baseline."""
-        baseline_metrics = next(
-            (v for v in self.variants if v.variant == baseline.value), None
-        )
+        baseline_metrics = next((v for v in self.variants if v.variant == baseline.value), None)
         if baseline_metrics is None or baseline_metrics.p99 == 0:
             return {}
         return {
-            v.variant: round(baseline_metrics.p99 / v.p99, 2)
-            for v in self.variants
-            if v.p99 > 0
+            v.variant: round(baseline_metrics.p99 / v.p99, 2) for v in self.variants if v.p99 > 0
         }
 
     def recall_drop(
         self, baseline: CollectionVariant = CollectionVariant.FULL_PRECISION
     ) -> dict[str, float]:
         """Recall drop relative to baseline (positive = worse recall)."""
-        baseline_metrics = next(
-            (v for v in self.variants if v.variant == baseline.value), None
-        )
+        baseline_metrics = next((v for v in self.variants if v.variant == baseline.value), None)
         if baseline_metrics is None:
             return {}
         base_recall = baseline_metrics.mean_recall
-        return {
-            v.variant: round(base_recall - v.mean_recall, 4)
-            for v in self.variants
-        }
+        return {v.variant: round(base_recall - v.mean_recall, 4) for v in self.variants}
 
 
 class BenchmarkRunner:
@@ -154,9 +145,7 @@ class BenchmarkRunner:
     async def connect(self) -> None:
         from qdrant_client import AsyncQdrantClient
 
-        self._client = AsyncQdrantClient(
-            host=self._host, port=self._port, api_key=self._api_key
-        )
+        self._client = AsyncQdrantClient(host=self._host, port=self._port, api_key=self._api_key)
         logger.info("BenchmarkRunner connected to Qdrant")
 
     async def close(self) -> None:
@@ -189,9 +178,7 @@ class BenchmarkRunner:
             top_k=top_k,
             record_latency=False,
         )
-        true_ids: list[set[str]] = [
-            {str(r["id"]) for r in hits} for hits in ground_truth
-        ]
+        true_ids: list[set[str]] = [{str(r["id"]) for r in hits} for hits in ground_truth]
 
         # Benchmark each variant
         variant_metrics: list[VariantMetrics] = []
@@ -314,9 +301,7 @@ class BenchmarkRunner:
         return results
 
     @staticmethod
-    def _generate_query_vectors(
-        n: int, vector_size: int, seed: int
-    ) -> list[list[float]]:
+    def _generate_query_vectors(n: int, vector_size: int, seed: int) -> list[list[float]]:
         random.seed(seed)
         vectors: list[list[float]] = []
         for _ in range(n):

@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
-from shared.models.document import ChunkType, DocumentChunk
+import pytest
+
+from shared.models.document import DocumentChunk
 from shared.models.retrieval import RetrievalResult
 from shared.storage.vector_store import PgVectorClient, QdrantVectorClient
 
-
 # ── PgVectorClient unit tests ────────────────────────────────────────────────
+
 
 class TestPgVectorClientUnit:
     @pytest.fixture
@@ -75,6 +76,7 @@ class TestPgVectorClientUnit:
 
 
 # ── QdrantVectorClient unit tests ────────────────────────────────────────────
+
 
 class TestQdrantVectorClientUnit:
     @pytest.fixture

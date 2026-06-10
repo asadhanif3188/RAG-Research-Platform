@@ -49,9 +49,7 @@ class RedisSemanticCache:
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    async def get(
-        self, query: str, query_embedding: list[float]
-    ) -> dict[str, Any] | None:
+    async def get(self, query: str, query_embedding: list[float]) -> dict[str, Any] | None:
         """Return cached response dict if a semantically similar query exists, else None."""
         keys = await self._redis.keys(f"{_CACHE_KEY_PREFIX}*")
         if not keys:
@@ -66,9 +64,10 @@ class RedisSemanticCache:
             if raw is None:
                 continue
             cached_vec = np.frombuffer(raw, dtype=np.float32)
-            score = float(np.dot(query_vec, cached_vec) / (
-                np.linalg.norm(query_vec) * np.linalg.norm(cached_vec) + 1e-9
-            ))
+            score = float(
+                np.dot(query_vec, cached_vec)
+                / (np.linalg.norm(query_vec) * np.linalg.norm(cached_vec) + 1e-9)
+            )
             if score > best_score:
                 best_score = score
                 best_key = key
@@ -95,11 +94,14 @@ class RedisSemanticCache:
         vec_bytes = np.array(query_embedding, dtype=np.float32).tobytes()
 
         async with self._redis.pipeline() as pipe:
-            pipe.hset(cache_key, mapping={
-                "query": query,
-                "embedding": vec_bytes,
-                "response": json.dumps(response),
-            })
+            pipe.hset(
+                cache_key,
+                mapping={
+                    "query": query,
+                    "embedding": vec_bytes,
+                    "response": json.dumps(response),
+                },
+            )
             pipe.expire(cache_key, self._ttl)
             await pipe.execute()
 

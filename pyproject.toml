@@ -24,6 +24,7 @@ dev-dependencies = [
     "factory-boy>=3.3",
     "freezegun>=1.5",
     "ruff>=0.15.16",
+    "mypy>=1.11",
 ]
 
 [tool.pytest.ini_options]

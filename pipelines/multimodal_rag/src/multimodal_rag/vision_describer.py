@@ -81,7 +81,11 @@ class VisionDescriber:
             self.connect()
 
         image_b64 = base64.standard_b64encode(image_bytes).decode()
-        prompt = f"Document context: {context}\n\n{_IMAGE_DESCRIBE_PROMPT}" if context else _IMAGE_DESCRIBE_PROMPT
+        prompt = (
+            f"Document context: {context}\n\n{_IMAGE_DESCRIBE_PROMPT}"
+            if context
+            else _IMAGE_DESCRIBE_PROMPT
+        )
 
         message = await self._client.messages.create(
             model=self._model,

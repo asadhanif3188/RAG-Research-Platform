@@ -28,15 +28,18 @@ async def test_fastest_rag_e2e():
     mock_emb_svc.total_cost_usd = 0.000001
 
     from shared.models.retrieval import RetrievalResult
+
     mock_vector_store = AsyncMock()
-    mock_vector_store.search = AsyncMock(return_value=[
-        RetrievalResult(
-            chunk_id="c1",
-            document_id="doc-1",
-            content="RAG combines retrieval with language model generation.",
-            score=0.95,
-        )
-    ])
+    mock_vector_store.search = AsyncMock(
+        return_value=[
+            RetrievalResult(
+                chunk_id="c1",
+                document_id="doc-1",
+                content="RAG combines retrieval with language model generation.",
+                score=0.95,
+            )
+        ]
+    )
 
     mock_cache = AsyncMock()
     mock_cache.get = AsyncMock(return_value=None)
@@ -55,6 +58,7 @@ async def test_fastest_rag_e2e():
     app.dependency_overrides[dependencies.get_cache_layer] = lambda: mock_cache
 
     from fastest_rag.pipeline import NaiveRAGPipeline
+
     pipeline = NaiveRAGPipeline(
         vector_store=mock_vector_store,
         embedding_service=mock_emb_svc,
@@ -92,6 +96,7 @@ async def test_fastest_rag_e2e():
 async def test_health_endpoint():
     """GET /health returns ok."""
     from api.main import app
+
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/health")
     assert response.status_code == 200
@@ -113,6 +118,7 @@ async def test_unimplemented_pipeline_returns_501():
     mock_cache.stats = MagicMock(return_value={})
 
     from fastest_rag.pipeline import NaiveRAGPipeline
+
     pipeline = NaiveRAGPipeline(
         vector_store=mock_vector_store,
         embedding_service=mock_emb_svc,

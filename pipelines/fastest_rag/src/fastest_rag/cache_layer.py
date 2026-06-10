@@ -74,9 +74,7 @@ class CacheLayer:
 
         return result
 
-    async def get_with_embedding(
-        self, query: str, embedding: list[float]
-    ) -> dict[str, Any] | None:
+    async def get_with_embedding(self, query: str, embedding: list[float]) -> dict[str, Any] | None:
         """Return cached response using a pre-computed embedding."""
         start = time.perf_counter()
         result = await self._cache.get(query, embedding)

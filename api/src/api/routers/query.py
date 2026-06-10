@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import logging
-import time
+from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, HTTPException, status
 
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
 
-from api.dependencies import CacheLayerDep, MultimodalPipelineDep, NaivePipelineDep
+if TYPE_CHECKING:
+    from api.dependencies import CacheLayerDep, MultimodalPipelineDep, NaivePipelineDep
 
 logger = logging.getLogger(__name__)
 

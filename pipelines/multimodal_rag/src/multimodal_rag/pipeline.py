@@ -15,16 +15,17 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from shared.embeddings.service import EmbeddingService
+from multimodal_rag.provenance import ProvenanceTracker
 from shared.models.document import ChunkType
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
 from shared.models.retrieval import RetrievalResult
-from shared.storage.vector_store import VectorStoreClient
 
-from fastest_rag.cache_layer import CacheLayer
-from multimodal_rag.provenance import ProvenanceTracker
+if TYPE_CHECKING:
+    from fastest_rag.cache_layer import CacheLayer
+    from shared.embeddings.service import EmbeddingService
+    from shared.storage.vector_store import VectorStoreClient
 
 logger = logging.getLogger(__name__)
 
@@ -197,9 +198,7 @@ class MultimodalRAGPipeline:
         image_k = max(1, int(top_k * 0.3))
         table_k = max(1, top_k - text_k - image_k)
 
-        text_results = await self._search_by_type(
-            query_embedding, text_k, ChunkType.TEXT, filters
-        )
+        text_results = await self._search_by_type(query_embedding, text_k, ChunkType.TEXT, filters)
         image_results = await self._search_by_type(
             query_embedding, image_k, ChunkType.IMAGE_DESCRIPTION, filters
         )

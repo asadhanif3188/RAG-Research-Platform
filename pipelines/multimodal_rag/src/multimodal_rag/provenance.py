@@ -9,24 +9,85 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from shared.models.document import ChunkType
-from shared.models.retrieval import RetrievalResult
+if TYPE_CHECKING:
+    from shared.models.retrieval import RetrievalResult
 
 logger = logging.getLogger(__name__)
 
 # Common English stopwords to exclude from overlap scoring
 _STOPWORDS = frozenset(
     {
-        "the", "a", "an", "is", "it", "in", "on", "at", "to", "for",
-        "of", "and", "or", "but", "not", "with", "this", "that", "are",
-        "was", "were", "be", "been", "has", "have", "had", "do", "does",
-        "did", "will", "would", "could", "should", "may", "might", "can",
-        "its", "their", "they", "we", "you", "he", "she", "as", "by",
-        "from", "which", "who", "what", "when", "where", "how", "if",
-        "also", "than", "then", "so", "up", "out", "no", "just", "into",
-        "over", "after", "such", "these", "those", "both", "each",
+        "the",
+        "a",
+        "an",
+        "is",
+        "it",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "and",
+        "or",
+        "but",
+        "not",
+        "with",
+        "this",
+        "that",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "has",
+        "have",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "can",
+        "its",
+        "their",
+        "they",
+        "we",
+        "you",
+        "he",
+        "she",
+        "as",
+        "by",
+        "from",
+        "which",
+        "who",
+        "what",
+        "when",
+        "where",
+        "how",
+        "if",
+        "also",
+        "than",
+        "then",
+        "so",
+        "up",
+        "out",
+        "no",
+        "just",
+        "into",
+        "over",
+        "after",
+        "such",
+        "these",
+        "those",
+        "both",
+        "each",
     }
 )
 
