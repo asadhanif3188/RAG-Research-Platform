@@ -23,7 +23,7 @@ import math
 import random
 import statistics
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -284,10 +284,7 @@ class BenchmarkRunner:
 
                 # Recall@k: fraction of true top-k IDs in this result
                 retrieved_ids = {str(h.id) for h in hits}
-                if true_ids[i]:
-                    recall = len(retrieved_ids & true_ids[i]) / len(true_ids[i])
-                else:
-                    recall = 1.0
+                recall = len(retrieved_ids & true_ids[i]) / len(true_ids[i]) if true_ids[i] else 1.0
                 metrics.recall_at_k.append(recall)
 
         await asyncio.gather(*[query_one(i, v) for i, v in enumerate(query_vectors)])

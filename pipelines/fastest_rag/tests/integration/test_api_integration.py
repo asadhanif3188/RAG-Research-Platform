@@ -7,20 +7,18 @@ so the test can run without live infrastructure.
 from __future__ import annotations
 
 import math
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-
-from httpx import AsyncClient, ASGITransport
-
-from shared.models.query import PipelineStrategy, QueryRequest
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
 async def test_fastest_rag_e2e():
     """POST /query with pipeline=fastest_rag returns a valid QueryResponse."""
-    from api.main import app
     from api import dependencies
+    from api.main import app
 
     # Mock all external services
     fake_embedding = [1.0 / math.sqrt(3072)] * 3072
@@ -104,8 +102,8 @@ async def test_health_endpoint():
 @pytest.mark.integration
 async def test_unimplemented_pipeline_returns_501():
     """POST /query with an unimplemented pipeline returns 501."""
-    from api.main import app
     from api import dependencies
+    from api.main import app
 
     mock_emb_svc = AsyncMock()
     mock_vector_store = AsyncMock()

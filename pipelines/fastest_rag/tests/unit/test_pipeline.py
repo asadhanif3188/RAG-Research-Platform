@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import math
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
-from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
-from shared.models.retrieval import RetrievalResult
+import pytest
 
 from fastest_rag.pipeline import NaiveRAGPipeline
+from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
+from shared.models.retrieval import RetrievalResult
 
 
 def make_fake_results(n: int = 3) -> list[RetrievalResult]:

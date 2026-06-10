@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastest_rag.cache_layer import CacheLayer
 

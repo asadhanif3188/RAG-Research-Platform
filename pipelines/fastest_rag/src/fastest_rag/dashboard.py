@@ -205,7 +205,7 @@ with col_right:
             y=values,
             text=[f"{v:.2f}×" for v in values],
             textposition="outside",
-            marker_color=[VARIANT_COLORS.get(l, "#888") for l in labels],
+            marker_color=[VARIANT_COLORS.get(label, "#888") for label in labels],
         ))
         fig_speedup.add_hline(y=1.0, line_dash="dash", line_color="grey", annotation_text="baseline")
         fig_speedup.update_layout(height=350, yaxis_title="Speedup factor (×)")

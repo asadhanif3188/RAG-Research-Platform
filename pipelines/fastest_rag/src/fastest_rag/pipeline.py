@@ -14,14 +14,15 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from shared.embeddings.service import EmbeddingService
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
 from shared.models.retrieval import RetrievalResult
-from shared.storage.vector_store import VectorStoreClient
 
-from fastest_rag.cache_layer import CacheLayer
+if TYPE_CHECKING:
+    from fastest_rag.cache_layer import CacheLayer
+    from shared.embeddings.service import EmbeddingService
+    from shared.storage.vector_store import VectorStoreClient
 
 logger = logging.getLogger(__name__)
 

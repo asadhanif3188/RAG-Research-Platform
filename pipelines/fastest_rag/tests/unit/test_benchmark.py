@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import json
 import math
 import statistics
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -27,9 +25,14 @@ class TestVariantMetrics:
         m = make_metrics("test", list(range(1, 101)), [1.0] * 100)
         assert m.p50 == statistics.median(range(1, 101))
 
-    def test_p99_is_at_least_most_values(self):
+    def test_p99_captures_tail_latency(self):
+        # With 99 values of 10.0 and 1 outlier at 100.0, p99 picks the 99th percentile
+        # ceil(99/100 * 100) - 1 = index 98 → 10.0 (99% of values are 10.0)
         m = make_metrics("test", [10.0] * 99 + [100.0], [1.0] * 100)
-        assert m.p99 == 100.0
+        assert m.p99 == 10.0
+        # With fewer values below the outlier, p99 captures it
+        m2 = make_metrics("test", [10.0] * 98 + [100.0, 100.0], [1.0] * 100)
+        assert m2.p99 == 100.0
 
     def test_qps_is_positive(self):
         m = make_metrics("test", [10.0] * 100, [1.0] * 100)
