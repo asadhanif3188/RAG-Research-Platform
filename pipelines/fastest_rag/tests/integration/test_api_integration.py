@@ -130,12 +130,15 @@ async def test_unimplemented_pipeline_returns_501():
     app.dependency_overrides[dependencies.get_pgvector_client] = lambda: mock_vector_store
     app.dependency_overrides[dependencies.get_cache_layer] = lambda: mock_cache
     app.dependency_overrides[dependencies.get_naive_pipeline] = lambda: pipeline
+    app.dependency_overrides[dependencies.get_multimodal_pipeline] = lambda: MagicMock()
+    app.dependency_overrides[dependencies.get_crag_pipeline] = lambda: MagicMock()
+    app.dependency_overrides[dependencies.get_self_rag_pipeline] = lambda: MagicMock()
 
     try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.post(
                 "/query",
-                json={"query": "test", "pipeline": "self_rag"},
+                json={"query": "test", "pipeline": "video_rag"},
             )
         assert response.status_code == 501
     finally:
