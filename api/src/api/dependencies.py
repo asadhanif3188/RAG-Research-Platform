@@ -11,6 +11,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from corrective_rag.pipeline import CRAGPipeline
 from fastest_rag.cache_layer import CacheLayer
 from fastest_rag.pipeline import NaiveRAGPipeline
 from multimodal_rag.pipeline import MultimodalRAGPipeline
@@ -27,6 +28,7 @@ _pgvector_client: PgVectorClient | None = None
 _cache_layer: CacheLayer | None = None
 _naive_pipeline: NaiveRAGPipeline | None = None
 _multimodal_pipeline: MultimodalRAGPipeline | None = None
+_crag_pipeline: CRAGPipeline | None = None
 
 
 async def get_embedding_service() -> EmbeddingService:
@@ -104,9 +106,27 @@ async def get_multimodal_pipeline(
     return _multimodal_pipeline
 
 
+async def get_crag_pipeline(
+    vector_store: PgVectorClient = Depends(get_pgvector_client),
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+) -> CRAGPipeline:
+    global _crag_pipeline
+    if _crag_pipeline is None:
+        settings = get_settings()
+        _crag_pipeline = CRAGPipeline(
+            vector_store=vector_store,
+            embedding_service=embedding_service,
+            anthropic_api_key=settings.anthropic_api_key,
+            tavily_api_key=settings.tavily_api_key,
+        )
+        _crag_pipeline.connect()
+    return _crag_pipeline
+
+
 # Type aliases for cleaner route signatures
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
 PgVectorDep = Annotated[PgVectorClient, Depends(get_pgvector_client)]
 CacheLayerDep = Annotated[CacheLayer, Depends(get_cache_layer)]
 NaivePipelineDep = Annotated[NaiveRAGPipeline, Depends(get_naive_pipeline)]
 MultimodalPipelineDep = Annotated[MultimodalRAGPipeline, Depends(get_multimodal_pipeline)]
+CRAGPipelineDep = Annotated[CRAGPipeline, Depends(get_crag_pipeline)]

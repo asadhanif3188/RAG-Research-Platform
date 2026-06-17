@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  corrective-rag-demo:
+    build:
+      context: ../..
+      dockerfile: pipelines/corrective_rag/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=ragdb
+      - POSTGRES_USER=raguser
+      - POSTGRES_PASSWORD=ragpassword
+      - DATABASE_URL=postgresql+asyncpg://raguser:ragpassword@postgres:5432/ragdb
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_HOST=qdrant
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ragdb
+      POSTGRES_USER: raguser
+      POSTGRES_PASSWORD: ragpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

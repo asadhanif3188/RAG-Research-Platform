@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "query": "What year was the transformer architecture introduced?",
+    "ground_truth": "The transformer architecture was introduced in 2017 in the paper 'Attention Is All You Need' by Vaswani et al.",
+    "category": "factual_recall",
+    "naive_rag_failure": "hallucinated_year"
+  },
+  {
+    "id": 2,
+    "query": "Who invented retrieval-augmented generation?",
+    "ground_truth": "RAG was introduced by Patrick Lewis et al. at Facebook AI Research (FAIR) in 2020.",
+    "category": "attribution",
+    "naive_rag_failure": "wrong_attribution"
+  },
+  {
+    "id": 3,
+    "query": "What is the maximum context window of Claude 3.5 Sonnet?",
+    "ground_truth": "Claude 3.5 Sonnet supports a 200K token context window.",
+    "category": "factual_recall",
+    "naive_rag_failure": "outdated_info"
+  },
+  {
+    "id": 4,
+    "query": "How does HNSW indexing work in vector databases?",
+    "ground_truth": "HNSW (Hierarchical Navigable Small World) creates a multi-layer graph where each layer is a proximity graph with decreasing connectivity, enabling logarithmic search time.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "incomplete_explanation"
+  },
+  {
+    "id": 5,
+    "query": "What are the four RAGAS evaluation metrics?",
+    "ground_truth": "The four RAGAS metrics are: faithfulness, answer relevancy, context precision, and context recall.",
+    "category": "enumeration",
+    "naive_rag_failure": "missing_items"
+  },
+  {
+    "id": 6,
+    "query": "What is the difference between dense and sparse retrieval?",
+    "ground_truth": "Dense retrieval uses neural embeddings (e.g., BERT) to find semantically similar documents, while sparse retrieval uses term-matching methods like BM25/TF-IDF based on keyword overlap.",
+    "category": "comparison",
+    "naive_rag_failure": "confused_concepts"
+  },
+  {
+    "id": 7,
+    "query": "What loss function is used to train sentence-transformers?",
+    "ground_truth": "Sentence-transformers typically use contrastive loss functions like MultipleNegativesRankingLoss (MNRL) or cosine similarity loss for training.",
+    "category": "technical_detail",
+    "naive_rag_failure": "fabricated_answer"
+  },
+  {
+    "id": 8,
+    "query": "How many parameters does GPT-4 have?",
+    "ground_truth": "OpenAI has not officially disclosed GPT-4's parameter count. Reported estimates suggest a mixture-of-experts architecture with approximately 1.8 trillion total parameters.",
+    "category": "factual_recall",
+    "naive_rag_failure": "stated_unknown_as_fact"
+  },
+  {
+    "id": 9,
+    "query": "What is the cosine similarity formula?",
+    "ground_truth": "Cosine similarity = (A · B) / (||A|| × ||B||), where A · B is the dot product and ||A||, ||B|| are the L2 norms of vectors A and B.",
+    "category": "formula",
+    "naive_rag_failure": "wrong_formula"
+  },
+  {
+    "id": 10,
+    "query": "What is chain-of-thought prompting?",
+    "ground_truth": "Chain-of-thought (CoT) prompting encourages LLMs to generate intermediate reasoning steps before arriving at an answer, improving performance on complex reasoning tasks.",
+    "category": "definition",
+    "naive_rag_failure": "shallow_definition"
+  },
+  {
+    "id": 11,
+    "query": "What is the purpose of the [CLS] token in BERT?",
+    "ground_truth": "The [CLS] token is prepended to every input sequence in BERT. Its final hidden state is used as the aggregate sequence representation for classification tasks.",
+    "category": "technical_detail",
+    "naive_rag_failure": "incorrect_purpose"
+  },
+  {
+    "id": 12,
+    "query": "What is Qdrant's default distance metric?",
+    "ground_truth": "Qdrant defaults to cosine distance for vector similarity search, though it also supports Euclidean (L2) and dot product distances.",
+    "category": "factual_recall",
+    "naive_rag_failure": "wrong_default"
+  },
+  {
+    "id": 13,
+    "query": "How does pgvector handle approximate nearest neighbor search?",
+    "ground_truth": "pgvector supports IVFFlat (inverted file index) and HNSW indexes for approximate nearest neighbor search, both configurable via CREATE INDEX with operator classes.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "missing_index_types"
+  },
+  {
+    "id": 14,
+    "query": "What is the difference between LangChain and LangGraph?",
+    "ground_truth": "LangChain provides chains and agents for LLM application building, while LangGraph extends it with stateful, multi-step graph-based workflows supporting cycles and conditional routing.",
+    "category": "comparison",
+    "naive_rag_failure": "confused_projects"
+  },
+  {
+    "id": 15,
+    "query": "What is the Re-ranking step in RAG?",
+    "ground_truth": "Re-ranking is a post-retrieval step where a cross-encoder or specialized model re-scores retrieved documents against the query, improving precision by reordering results.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_retrieval"
+  },
+  {
+    "id": 16,
+    "query": "What embedding dimensions does text-embedding-3-large support?",
+    "ground_truth": "OpenAI's text-embedding-3-large supports configurable dimensions via the 'dimensions' parameter, defaulting to 3072 but reducible to 256, 1024, etc.",
+    "category": "factual_recall",
+    "naive_rag_failure": "wrong_dimensions"
+  },
+  {
+    "id": 17,
+    "query": "What is HyDE in the context of RAG?",
+    "ground_truth": "HyDE (Hypothetical Document Embeddings) generates a hypothetical answer using the LLM, embeds it, and uses that embedding for retrieval instead of the raw query embedding.",
+    "category": "definition",
+    "naive_rag_failure": "fabricated_acronym"
+  },
+  {
+    "id": 18,
+    "query": "How does Corrective RAG differ from standard RAG?",
+    "ground_truth": "Corrective RAG (CRAG) adds a self-assessment loop that grades retrieved document relevance and branches: directly generates for relevant docs, decomposes ambiguous docs, and falls back to web search for irrelevant results.",
+    "category": "comparison",
+    "naive_rag_failure": "incomplete_answer"
+  },
+  {
+    "id": 19,
+    "query": "What is Self-RAG?",
+    "ground_truth": "Self-RAG is a framework where the LLM decides whether to retrieve, generates with special reflection tokens, and self-evaluates both retrieval relevance and generation quality before producing the final answer.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_crag"
+  },
+  {
+    "id": 20,
+    "query": "What are the common chunking strategies for RAG?",
+    "ground_truth": "Common chunking strategies include: fixed-size chunking, sliding window, semantic chunking (based on embedding similarity), recursive text splitting, and document-structure-aware chunking.",
+    "category": "enumeration",
+    "naive_rag_failure": "missing_strategies"
+  },
+  {
+    "id": 21,
+    "query": "What is the Tavily API used for?",
+    "ground_truth": "Tavily is a search API designed for AI applications, providing web search results optimized for LLM consumption with configurable search depth and content extraction.",
+    "category": "definition",
+    "naive_rag_failure": "wrong_api_purpose"
+  },
+  {
+    "id": 22,
+    "query": "What is LangFuse?",
+    "ground_truth": "LangFuse is an open-source LLM engineering platform for tracing, evaluating, and monitoring LLM applications, providing observability into prompt execution, latency, and cost.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_langsmith"
+  },
+  {
+    "id": 23,
+    "query": "What is binary quantization in vector search?",
+    "ground_truth": "Binary quantization converts float32 embedding components to single bits (0 or 1), reducing memory by 32x and enabling faster Hamming distance comparisons, at the cost of some recall accuracy.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "wrong_compression_ratio"
+  },
+  {
+    "id": 24,
+    "query": "What is the difference between scalar and binary quantization?",
+    "ground_truth": "Scalar quantization maps float32 values to int8 (4x compression, higher recall), while binary quantization maps to single bits (32x compression, lower recall but much faster).",
+    "category": "comparison",
+    "naive_rag_failure": "confused_quantization_types"
+  },
+  {
+    "id": 25,
+    "query": "How does semantic caching work in RAG?",
+    "ground_truth": "Semantic caching stores query embeddings alongside responses. For new queries, it computes embedding similarity against cached queries and returns the cached response if similarity exceeds a threshold.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "described_exact_match_cache"
+  },
+  {
+    "id": 26,
+    "query": "What is the RAGAS faithfulness metric?",
+    "ground_truth": "RAGAS faithfulness measures what fraction of claims in the generated answer can be inferred from the given context. It decomposes the answer into atomic claims and checks each against the context.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_relevancy"
+  },
+  {
+    "id": 27,
+    "query": "What is multi-hop retrieval?",
+    "ground_truth": "Multi-hop retrieval answers complex questions requiring information from multiple documents by performing iterative retrieval steps, where each step's results inform the next query.",
+    "category": "definition",
+    "naive_rag_failure": "described_single_hop"
+  },
+  {
+    "id": 28,
+    "query": "How does reciprocal rank fusion work?",
+    "ground_truth": "Reciprocal Rank Fusion (RRF) combines multiple ranked lists by assigning each document a score of 1/(k + rank) for each list it appears in, then summing scores across all lists.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "wrong_formula"
+  },
+  {
+    "id": 29,
+    "query": "What is the difference between RAG and fine-tuning?",
+    "ground_truth": "RAG augments generation with external retrieved context at inference time (no weight changes), while fine-tuning modifies model weights on domain-specific data. RAG is better for dynamic knowledge; fine-tuning for behavioral/style changes.",
+    "category": "comparison",
+    "naive_rag_failure": "incomplete_comparison"
+  },
+  {
+    "id": 30,
+    "query": "What is a knowledge graph in the context of RAG?",
+    "ground_truth": "A knowledge graph stores entities and their relationships as a structured graph (nodes + edges), enabling multi-hop reasoning and relationship-aware retrieval alongside vector search.",
+    "category": "definition",
+    "naive_rag_failure": "generic_definition"
+  },
+  {
+    "id": 31,
+    "query": "What is the purpose of query expansion in RAG?",
+    "ground_truth": "Query expansion generates multiple reformulations or sub-queries from the original query to improve retrieval recall, capturing different phrasings of the same information need.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_query_rewriting"
+  },
+  {
+    "id": 32,
+    "query": "What is agentic RAG?",
+    "ground_truth": "Agentic RAG uses AI agents that dynamically decide retrieval strategies, tool usage, and iteration depth based on query complexity, rather than following a fixed retrieval pipeline.",
+    "category": "definition",
+    "naive_rag_failure": "described_standard_rag"
+  },
+  {
+    "id": 33,
+    "query": "What is the Matryoshka representation learning technique?",
+    "ground_truth": "Matryoshka Representation Learning trains embeddings such that truncating to smaller dimensions preserves useful information, enabling adaptive dimension selection for different use cases.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "fabricated_explanation"
+  },
+  {
+    "id": 34,
+    "query": "How does ColBERT differ from bi-encoder retrieval?",
+    "ground_truth": "ColBERT uses late interaction — it embeds query and document tokens independently but computes fine-grained token-level similarity at search time via MaxSim, offering better accuracy than bi-encoders while remaining scalable.",
+    "category": "comparison",
+    "naive_rag_failure": "confused_architectures"
+  },
+  {
+    "id": 35,
+    "query": "What is the parent-document retriever pattern?",
+    "ground_truth": "The parent-document retriever indexes small chunks for precise retrieval but returns the full parent document (or larger chunk) for generation context, balancing retrieval precision with context completeness.",
+    "category": "definition",
+    "naive_rag_failure": "described_standard_chunking"
+  },
+  {
+    "id": 36,
+    "query": "What is FLARE in the context of RAG?",
+    "ground_truth": "FLARE (Forward-Looking Active REtrieval) generates text iteratively, and when the model's confidence drops below a threshold, it formulates a retrieval query from the low-confidence tokens to fetch additional context.",
+    "category": "definition",
+    "naive_rag_failure": "fabricated_acronym_expansion"
+  },
+  {
+    "id": 37,
+    "query": "What is the difference between FAISS and Qdrant?",
+    "ground_truth": "FAISS is a C++ library for dense vector similarity search (in-process, no built-in persistence/API), while Qdrant is a full vector database with REST/gRPC API, filtering, persistence, and distributed deployment.",
+    "category": "comparison",
+    "naive_rag_failure": "incomplete_comparison"
+  },
+  {
+    "id": 38,
+    "query": "What is tool-use in LLMs?",
+    "ground_truth": "Tool use (function calling) allows LLMs to invoke external functions/APIs by generating structured tool calls that the application executes, then feeding results back to the model for final response generation.",
+    "category": "definition",
+    "naive_rag_failure": "shallow_definition"
+  },
+  {
+    "id": 39,
+    "query": "What is the Lost in the Middle problem in RAG?",
+    "ground_truth": "The 'Lost in the Middle' paper shows that LLMs attend more to information at the beginning and end of long contexts, often missing relevant information placed in the middle of the context window.",
+    "category": "definition",
+    "naive_rag_failure": "wrong_problem_description"
+  },
+  {
+    "id": 40,
+    "query": "What is contextual compression in RAG?",
+    "ground_truth": "Contextual compression uses an LLM or smaller model to extract or summarize only the relevant parts of retrieved documents before passing them to the generation model, reducing noise and token usage.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_quantization"
+  },
+  {
+    "id": 41,
+    "query": "What is the difference between MAP and MRR evaluation metrics?",
+    "ground_truth": "MAP (Mean Average Precision) averages precision at each relevant document across queries, while MRR (Mean Reciprocal Rank) only considers the rank of the first relevant document. MAP rewards returning all relevant docs; MRR rewards finding one fast.",
+    "category": "comparison",
+    "naive_rag_failure": "confused_metrics"
+  },
+  {
+    "id": 42,
+    "query": "How does Whisper ASR handle multilingual transcription?",
+    "ground_truth": "Whisper is trained on 680K hours of multilingual audio. It uses a multitask format with language identification, transcription, and translation tasks, supporting 99+ languages with a single model.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "wrong_training_details"
+  },
+  {
+    "id": 43,
+    "query": "What is a cross-encoder and when is it used in RAG?",
+    "ground_truth": "A cross-encoder jointly encodes query-document pairs through a single transformer pass, producing a relevance score. It's used for re-ranking after initial retrieval because it's more accurate but too slow for full-corpus search.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_bi_encoder"
+  },
+  {
+    "id": 44,
+    "query": "What is the MCP (Model Context Protocol)?",
+    "ground_truth": "MCP is an open protocol by Anthropic that standardizes how AI applications connect to external data sources and tools, providing a universal interface for context integration.",
+    "category": "definition",
+    "naive_rag_failure": "fabricated_definition"
+  },
+  {
+    "id": 45,
+    "query": "What is instruction tuning vs RLHF?",
+    "ground_truth": "Instruction tuning fine-tunes models on instruction-following datasets (supervised), while RLHF uses human preference comparisons to train a reward model, then optimizes the LLM policy with reinforcement learning (PPO/DPO).",
+    "category": "comparison",
+    "naive_rag_failure": "incomplete_distinction"
+  },
+  {
+    "id": 46,
+    "query": "What is a vector index and why is it needed?",
+    "ground_truth": "A vector index is a data structure that enables sub-linear nearest neighbor search over high-dimensional vectors. Without it, search requires O(n) brute-force comparison against every vector.",
+    "category": "definition",
+    "naive_rag_failure": "missing_complexity_analysis"
+  },
+  {
+    "id": 47,
+    "query": "What is the difference between async and sync Python clients for LLM APIs?",
+    "ground_truth": "Async clients (e.g., AsyncAnthropic) use Python's asyncio event loop for non-blocking I/O, enabling concurrent API calls. Sync clients block the thread per call, which is simpler but doesn't scale for high-throughput applications.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "oversimplified"
+  },
+  {
+    "id": 48,
+    "query": "What is Pydantic's role in RAG applications?",
+    "ground_truth": "Pydantic provides runtime data validation and serialization for Python objects. In RAG, it validates query/response schemas, chunk metadata, configuration settings, and API contracts with type safety.",
+    "category": "definition",
+    "naive_rag_failure": "generic_answer"
+  },
+  {
+    "id": 49,
+    "query": "What is document provenance tracking in RAG?",
+    "ground_truth": "Document provenance tracking maps each sentence or claim in the generated answer back to the specific source chunk(s) that support it, enabling verifiable citations and trust.",
+    "category": "definition",
+    "naive_rag_failure": "confused_with_metadata"
+  },
+  {
+    "id": 50,
+    "query": "What is the purpose of overlap in text chunking?",
+    "ground_truth": "Chunk overlap ensures that information spanning chunk boundaries is preserved in at least one chunk, preventing context loss at split points and improving retrieval recall for boundary-spanning queries.",
+    "category": "technical_explanation",
+    "naive_rag_failure": "wrong_purpose"
+  }
+]
