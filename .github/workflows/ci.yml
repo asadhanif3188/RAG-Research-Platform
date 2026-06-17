@@ -82,6 +82,7 @@ jobs:
           uv run pytest shared/tests/unit/ \
             pipelines/fastest_rag/tests/unit/ \
             pipelines/multimodal_rag/tests/unit/ \
+            pipelines/corrective_rag/tests/unit/ \
             -v --tb=short \
-            --cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src \
+            --cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src --cov=pipelines/corrective_rag/src \
             --cov-report=term-missing

@@ -351,20 +351,20 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 ### Phase 3: Corrective RAG (CRAG)
 
 ```
-[ ] 3.1  Design LangGraph graph: retrieve → grade_documents → (relevant: generate) / (ambiguous: decompose) / (irrelevant: web_search) → generate
-[ ] 3.2  Implement RelevanceGrader — Claude grades each retrieved doc: RELEVANT / AMBIGUOUS / IRRELEVANT
-[ ] 3.3  Implement DocumentDecomposer — for AMBIGUOUS docs, extract only relevant sub-sections
-[ ] 3.4  Implement QueryRewriter — rewrites query to improve web search quality
-[ ] 3.5  Implement WebSearcher — Tavily API integration with result parsing and deduplication
-[ ] 3.6  Implement CRAGGraph — assemble full LangGraph stateful graph with conditional edges
-[ ] 3.7  Add LangFuse tracing to every node (inputs, outputs, latency, token cost)
-[ ] 3.8  Run RAGAS evaluation: naive RAG vs CRAG — show hallucination rate reduction
-[ ] 3.9  Write test dataset of 50 queries where naive RAG hallucinated (golden answers known)
-[ ] 3.10 Write unit tests for RelevanceGrader, DocumentDecomposer, QueryRewriter
-[ ] 3.11 Write integration test for full CRAG graph end-to-end
-[ ] 3.12 Write standalone README for corrective_rag/ — architecture diagram, graph flowchart, RAGAS comparison table, demo GIF
-[ ] 3.13 Build standalone demo.py (Streamlit) — enter query, see CRAG decision path (RELEVANT/AMBIGUOUS/IRRELEVANT), runs without full platform
-[ ] 3.14 Write Dockerfile for corrective_rag/ — independently runnable with `docker run`
+[x] 3.1  Design LangGraph graph: retrieve → grade_documents → (relevant: generate) / (ambiguous: decompose) / (irrelevant: web_search) → generate
+[x] 3.2  Implement RelevanceGrader — Claude grades each retrieved doc: RELEVANT / AMBIGUOUS / IRRELEVANT
+[x] 3.3  Implement DocumentDecomposer — for AMBIGUOUS docs, extract only relevant sub-sections
+[x] 3.4  Implement QueryRewriter — rewrites query to improve web search quality
+[x] 3.5  Implement WebSearcher — Tavily API integration with result parsing and deduplication
+[x] 3.6  Implement CRAGGraph — assemble full LangGraph stateful graph with conditional edges
+[x] 3.7  Add LangFuse tracing to every node (inputs, outputs, latency, token cost)
+[x] 3.8  Run RAGAS evaluation: naive RAG vs CRAG — show hallucination rate reduction
+[x] 3.9  Write test dataset of 50 queries where naive RAG hallucinated (golden answers known)
+[x] 3.10 Write unit tests for RelevanceGrader, DocumentDecomposer, QueryRewriter
+[x] 3.11 Write integration test for full CRAG graph end-to-end
+[x] 3.12 Write standalone README for corrective_rag/ — architecture diagram, graph flowchart, RAGAS comparison table, demo GIF
+[x] 3.13 Build standalone demo.py (Streamlit) — enter query, see CRAG decision path (RELEVANT/AMBIGUOUS/IRRELEVANT), runs without full platform
+[x] 3.14 Write Dockerfile for corrective_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 4: Self-RAG with LangGraph
