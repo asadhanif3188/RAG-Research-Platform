@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "self-rag"
+version = "0.1.0"
+description = "Self-RAG — adaptive retrieval with hallucination detection, answer grading, HyDE expansion, and graph trace visualization"
+requires-python = ">=3.12"
+dependencies = [
+    "shared",
+    "corrective-rag",
+    "anthropic>=0.34",
+    "langchain-anthropic>=0.3",
+    "langgraph>=0.2",
+    "tavily-python>=0.3",
+    "langfuse>=2.0",
+    "numpy>=1.26",
+    "streamlit>=1.36",
+]
+
+[tool.uv.sources]
+shared = { workspace = true }
+corrective-rag = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/self_rag"]

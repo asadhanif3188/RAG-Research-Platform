@@ -1,0 +1,42 @@
+[
+  {
+    "query": "What is Retrieval-Augmented Generation and how does it work?",
+    "ground_truth": "Retrieval-Augmented Generation (RAG) is a technique that combines information retrieval with text generation. It retrieves relevant documents from a knowledge base and uses them as context for a language model to generate accurate, grounded answers."
+  },
+  {
+    "query": "How does HyDE improve retrieval quality?",
+    "ground_truth": "Hypothetical Document Embeddings (HyDE) improves retrieval by generating a hypothetical answer document using an LLM, then embedding that hypothetical document instead of the original query. The hypothetical document's embedding often better captures the semantic space of the desired answer, leading to more relevant retrieval results."
+  },
+  {
+    "query": "What are the key differences between CRAG and Self-RAG?",
+    "ground_truth": "CRAG (Corrective RAG) focuses on relevance grading of retrieved documents and falls back to web search when documents are irrelevant. Self-RAG extends CRAG with additional decision nodes: retrieve-or-not (skip retrieval for simple queries), hallucination grading (verify answer grounding), answer grading (verify answer addresses the question), and adaptive retry with HyDE query expansion."
+  },
+  {
+    "query": "What is 2 plus 2?",
+    "ground_truth": "2 plus 2 equals 4."
+  },
+  {
+    "query": "What is hallucination in the context of language models?",
+    "ground_truth": "Hallucination in language models refers to the generation of content that is not grounded in the provided context or factual knowledge. The model produces plausible-sounding but incorrect or fabricated information that cannot be verified against the source documents."
+  },
+  {
+    "query": "How do embedding models work for semantic search?",
+    "ground_truth": "Embedding models convert text into dense numerical vectors that capture semantic meaning. Similar texts produce vectors that are close together in the embedding space, enabling semantic search by finding documents whose embeddings are most similar to the query embedding using distance metrics like cosine similarity."
+  },
+  {
+    "query": "Explain the concept of vector databases and their role in RAG systems.",
+    "ground_truth": "Vector databases are specialized storage systems designed to store, index, and efficiently search high-dimensional vectors. In RAG systems, they store document chunk embeddings and enable fast approximate nearest neighbor search to find the most relevant documents for a given query embedding."
+  },
+  {
+    "query": "What is the purpose of relevance grading in corrective RAG?",
+    "ground_truth": "Relevance grading in corrective RAG assesses whether retrieved documents are relevant to the query. Documents are classified as RELEVANT (directly answers the query), AMBIGUOUS (partially relevant, needs decomposition), or IRRELEVANT (not related). This classification determines the retrieval path: use documents directly, extract relevant parts, or fall back to web search."
+  },
+  {
+    "query": "How does document decomposition improve RAG accuracy?",
+    "ground_truth": "Document decomposition extracts only the relevant sub-sections from partially relevant (ambiguous) documents. Instead of using the entire document as context, the system identifies and extracts specific passages that address the query, reducing noise and improving the quality of generated answers."
+  },
+  {
+    "query": "What metrics does RAGAS use to evaluate RAG systems?",
+    "ground_truth": "RAGAS evaluates RAG systems using four key metrics: faithfulness (whether the answer is grounded in the context), answer relevancy (whether the answer addresses the question), context precision (relevance of retrieved contexts), and context recall (whether all relevant information was retrieved). These metrics provide a comprehensive assessment of both retrieval and generation quality."
+  }
+]

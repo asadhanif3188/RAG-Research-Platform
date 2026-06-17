@@ -15,6 +15,7 @@ from corrective_rag.pipeline import CRAGPipeline
 from fastest_rag.cache_layer import CacheLayer
 from fastest_rag.pipeline import NaiveRAGPipeline
 from multimodal_rag.pipeline import MultimodalRAGPipeline
+from self_rag.pipeline import SelfRAGPipeline
 from shared.config import get_settings
 from shared.embeddings.service import EmbeddingService
 from shared.storage.vector_store import PgVectorClient
@@ -29,6 +30,7 @@ _cache_layer: CacheLayer | None = None
 _naive_pipeline: NaiveRAGPipeline | None = None
 _multimodal_pipeline: MultimodalRAGPipeline | None = None
 _crag_pipeline: CRAGPipeline | None = None
+_self_rag_pipeline: SelfRAGPipeline | None = None
 
 
 async def get_embedding_service() -> EmbeddingService:
@@ -123,6 +125,23 @@ async def get_crag_pipeline(
     return _crag_pipeline
 
 
+async def get_self_rag_pipeline(
+    vector_store: PgVectorClient = Depends(get_pgvector_client),
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+) -> SelfRAGPipeline:
+    global _self_rag_pipeline
+    if _self_rag_pipeline is None:
+        settings = get_settings()
+        _self_rag_pipeline = SelfRAGPipeline(
+            vector_store=vector_store,
+            embedding_service=embedding_service,
+            anthropic_api_key=settings.anthropic_api_key,
+            tavily_api_key=settings.tavily_api_key,
+        )
+        _self_rag_pipeline.connect()
+    return _self_rag_pipeline
+
+
 # Type aliases for cleaner route signatures
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
 PgVectorDep = Annotated[PgVectorClient, Depends(get_pgvector_client)]
@@ -130,3 +149,4 @@ CacheLayerDep = Annotated[CacheLayer, Depends(get_cache_layer)]
 NaivePipelineDep = Annotated[NaiveRAGPipeline, Depends(get_naive_pipeline)]
 MultimodalPipelineDep = Annotated[MultimodalRAGPipeline, Depends(get_multimodal_pipeline)]
 CRAGPipelineDep = Annotated[CRAGPipeline, Depends(get_crag_pipeline)]
+SelfRAGPipelineDep = Annotated[SelfRAGPipeline, Depends(get_self_rag_pipeline)]

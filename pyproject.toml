@@ -5,6 +5,7 @@ shared = { workspace = true }
 fastest-rag = { workspace = true }
 multimodal-rag = { workspace = true }
 corrective-rag = { workspace = true }
+self-rag = { workspace = true }
 api = { workspace = true }
 
 [tool.uv.workspace]
@@ -13,6 +14,7 @@ members = [
     "pipelines/fastest_rag",
     "pipelines/multimodal_rag",
     "pipelines/corrective_rag",
+    "pipelines/self_rag",
     "api",
 ]
 
@@ -37,8 +39,9 @@ testpaths = [
     "pipelines/fastest_rag/tests",
     "pipelines/multimodal_rag/tests",
     "pipelines/corrective_rag/tests",
+    "pipelines/self_rag/tests",
 ]
-addopts = "--import-mode=importlib --cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src --cov=pipelines/corrective_rag/src --cov-report=term-missing"
+addopts = "--import-mode=importlib --cov=shared/src --cov=pipelines/fastest_rag/src --cov=pipelines/multimodal_rag/src --cov=pipelines/corrective_rag/src --cov=pipelines/self_rag/src --cov-report=term-missing"
 markers = [
     "unit: Unit tests (no external dependencies)",
     "integration: Integration tests (require Docker services)",

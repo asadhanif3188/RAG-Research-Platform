@@ -6,7 +6,13 @@ import logging
 
 from fastapi import APIRouter, HTTPException, status
 
-from api.dependencies import CacheLayerDep, CRAGPipelineDep, MultimodalPipelineDep, NaivePipelineDep  # noqa: TC001
+from api.dependencies import (  # noqa: TC001
+    CacheLayerDep,
+    CRAGPipelineDep,
+    MultimodalPipelineDep,
+    NaivePipelineDep,
+    SelfRAGPipelineDep,
+)
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
 
 logger = logging.getLogger(__name__)
@@ -28,6 +34,7 @@ async def run_query(
     naive_pipeline: NaivePipelineDep,
     multimodal_pipeline: MultimodalPipelineDep,
     crag_pipeline: CRAGPipelineDep,
+    self_rag_pipeline: SelfRAGPipelineDep,
 ) -> QueryResponse:
     """Execute a RAG query through the selected pipeline."""
     logger.info(
@@ -44,11 +51,13 @@ async def run_query(
                 return await multimodal_pipeline.run(request)
             case PipelineStrategy.CORRECTIVE_RAG:
                 return await crag_pipeline.run(request)
+            case PipelineStrategy.SELF_RAG:
+                return await self_rag_pipeline.run(request)
             case _:
                 raise HTTPException(
                     status_code=status.HTTP_501_NOT_IMPLEMENTED,
                     detail=f"Pipeline '{request.pipeline}' is not yet implemented. "
-                    "Available: fastest_rag, multimodal_rag, corrective_rag",
+                    "Available: fastest_rag, multimodal_rag, corrective_rag, self_rag",
                 )
     except HTTPException:
         raise
