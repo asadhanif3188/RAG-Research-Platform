@@ -388,22 +388,22 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 ### Phase 5: MCP-powered RAG over Videos
 
 ```
-[ ] 5.1  Implement VideoIndexer — downloads/accepts video, runs Whisper ASR, segments by sentence
-[ ] 5.2  Implement SceneDetector — detect scene changes using frame difference (PyAV/OpenCV)
-[ ] 5.3  Implement CLIPEmbedder — extract CLIP embeddings per scene keyframe
-[ ] 5.4  Build hybrid video index: text embeddings (transcripts) + CLIP embeddings (frames)
-[ ] 5.5  Implement TimestampChunker — each chunk has start_ts, end_ts, transcript, frame_embedding
-[ ] 5.6  Implement SegmentRetriever — dual retrieval: text similarity + visual similarity, fused ranking
-[ ] 5.7  Build Neo4j topic graph: videos → topics → segments (for multi-hop "find segments about X in videos tagged Y")
-[ ] 5.8  Implement FastMCP server with tools: search_video, get_segment, list_videos, get_transcript
-[ ] 5.9  Build Chainlit VideoPlayer component — displays retrieved video segment with seek to timestamp
-[ ] 5.10 Build multi-video Q&A mode — query spans a library of indexed videos
-[ ] 5.11 Test with 5 YouTube lecture videos (download via yt-dlp, index, query)
-[ ] 5.12 Write unit tests for VideoIndexer, SegmentRetriever
-[ ] 5.13 Write integration test for MCP server tools
-[ ] 5.14 Write standalone README for video_rag/ — architecture diagram, MCP tool docs, demo GIF with video playback
-[ ] 5.15 Build standalone demo.py (Streamlit) — upload/link video, query, see timestamped segment, runs without full platform
-[ ] 5.16 Write Dockerfile for video_rag/ — independently runnable with `docker run`
+[x] 5.1  Implement VideoIndexer — downloads/accepts video, runs Whisper ASR, segments by sentence
+[x] 5.2  Implement SceneDetector — detect scene changes using frame difference (PyAV/OpenCV)
+[x] 5.3  Implement CLIPEmbedder — extract CLIP embeddings per scene keyframe
+[x] 5.4  Build hybrid video index: text embeddings (transcripts) + CLIP embeddings (frames)
+[x] 5.5  Implement TimestampChunker — each chunk has start_ts, end_ts, transcript, frame_embedding
+[x] 5.6  Implement SegmentRetriever — dual retrieval: text similarity + visual similarity, fused ranking
+[x] 5.7  Build Neo4j topic graph: videos → topics → segments (for multi-hop "find segments about X in videos tagged Y")
+[x] 5.8  Implement FastMCP server with tools: search_video, get_segment, list_videos, get_transcript
+[x] 5.9  Build Chainlit VideoPlayer component — displays retrieved video segment with seek to timestamp
+[x] 5.10 Build multi-video Q&A mode — query spans a library of indexed videos
+[x] 5.11 Test with 5 YouTube lecture videos (download via yt-dlp, index, query)
+[x] 5.12 Write unit tests for VideoIndexer, SegmentRetriever
+[x] 5.13 Write integration test for MCP server tools
+[x] 5.14 Write standalone README for video_rag/ — architecture diagram, MCP tool docs, demo GIF with video playback
+[x] 5.15 Build standalone demo.py (Streamlit) — upload/link video, query, see timestamped segment, runs without full platform
+[x] 5.16 Write Dockerfile for video_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 6: Integration & Polish
