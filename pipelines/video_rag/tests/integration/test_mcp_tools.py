@@ -54,16 +54,24 @@ class TestMCPToolIntegration:
     async def test_search_video_tool(self) -> None:
         self.mock_retriever.retrieve.return_value = [
             VideoSegmentResult(
-                segment_id="s1", video_id="vid-001",
-                start_ts=120.0, end_ts=130.0,
+                segment_id="s1",
+                video_id="vid-001",
+                start_ts=120.0,
+                end_ts=130.0,
                 transcript="Neural networks learn representations",
-                text_score=0.93, visual_score=0.78, fused_score=0.87,
+                text_score=0.93,
+                visual_score=0.78,
+                fused_score=0.87,
             ),
             VideoSegmentResult(
-                segment_id="s2", video_id="vid-002",
-                start_ts=450.0, end_ts=460.0,
+                segment_id="s2",
+                video_id="vid-002",
+                start_ts=450.0,
+                end_ts=460.0,
                 transcript="Backpropagation computes gradients",
-                text_score=0.85, visual_score=0.65, fused_score=0.77,
+                text_score=0.85,
+                visual_score=0.65,
+                fused_score=0.77,
             ),
         ]
 
@@ -100,8 +108,12 @@ class TestMCPToolIntegration:
     @pytest.mark.asyncio
     async def test_get_segment_tool(self) -> None:
         self.mock_neo4j.get_video_segments.return_value = [
-            {"segment_id": "s5", "start_s": 100.0, "end_s": 110.0,
-             "transcript": "Gradient descent optimizes the loss function"},
+            {
+                "segment_id": "s5",
+                "start_s": 100.0,
+                "end_s": 110.0,
+                "transcript": "Gradient descent optimizes the loss function",
+            },
         ]
 
         result = await get_segment("s5", "vid-001")

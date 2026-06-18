@@ -40,8 +40,14 @@ class TestMCPServer:
         mock_retriever = AsyncMock()
         mock_retriever.retrieve.return_value = [
             VideoSegmentResult(
-                segment_id="s1", video_id="v1", start_ts=0.0, end_ts=5.0,
-                transcript="Hello", text_score=0.9, visual_score=0.7, fused_score=0.82,
+                segment_id="s1",
+                video_id="v1",
+                start_ts=0.0,
+                end_ts=5.0,
+                transcript="Hello",
+                text_score=0.9,
+                visual_score=0.7,
+                fused_score=0.82,
             ),
         ]
         mcp_server._retriever = mock_retriever
@@ -60,8 +66,18 @@ class TestMCPServer:
     @pytest.mark.asyncio
     async def test_list_videos(self) -> None:
         mcp_server._video_registry = {
-            "v1": {"title": "Video 1", "url": "http://v1.com", "duration_s": 120, "segment_count": 5},
-            "v2": {"title": "Video 2", "url": "http://v2.com", "duration_s": 300, "segment_count": 20},
+            "v1": {
+                "title": "Video 1",
+                "url": "http://v1.com",
+                "duration_s": 120,
+                "segment_count": 5,
+            },
+            "v2": {
+                "title": "Video 2",
+                "url": "http://v2.com",
+                "duration_s": 300,
+                "segment_count": 20,
+            },
         }
         results = await list_videos()
         assert len(results) == 2

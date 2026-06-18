@@ -34,7 +34,9 @@ class TestTimestampChunker:
         frame_embeddings = {0: [0.1] * 512, 2: [0.3] * 512}
 
         chunks = chunker.chunks_from_segments(
-            video_id="v1", segments=segments, frame_embeddings=frame_embeddings,
+            video_id="v1",
+            segments=segments,
+            frame_embeddings=frame_embeddings,
         )
 
         assert "frame_embedding" in chunks[0].metadata
@@ -53,9 +55,9 @@ class TestTimestampChunker:
     def test_assign_frame_embeddings_nearest(self) -> None:
         chunker = TimestampChunker()
         segments = [
-            TranscriptSegment(start_ts=0.0, end_ts=5.0, text="seg1"),   # mid=2.5
+            TranscriptSegment(start_ts=0.0, end_ts=5.0, text="seg1"),  # mid=2.5
             TranscriptSegment(start_ts=5.0, end_ts=10.0, text="seg2"),  # mid=7.5
-            TranscriptSegment(start_ts=10.0, end_ts=15.0, text="seg3"), # mid=12.5
+            TranscriptSegment(start_ts=10.0, end_ts=15.0, text="seg3"),  # mid=12.5
         ]
         kf_timestamps = [1.0, 8.0, 14.0]
         kf_embeddings = [[0.1] * 512, [0.2] * 512, [0.3] * 512]

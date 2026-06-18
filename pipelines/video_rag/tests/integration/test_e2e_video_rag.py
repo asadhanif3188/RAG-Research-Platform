@@ -34,22 +34,34 @@ class TestE2EVideoRAG:
         mock_retriever = AsyncMock()
         mock_retriever.retrieve.return_value = [
             VideoSegmentResult(
-                segment_id="s1", video_id="lecture-ai-101",
-                start_ts=120.5, end_ts=135.0,
+                segment_id="s1",
+                video_id="lecture-ai-101",
+                start_ts=120.5,
+                end_ts=135.0,
                 transcript="Machine learning is a subset of artificial intelligence that enables systems to learn from data",
-                text_score=0.94, visual_score=0.72, fused_score=0.85,
+                text_score=0.94,
+                visual_score=0.72,
+                fused_score=0.85,
             ),
             VideoSegmentResult(
-                segment_id="s2", video_id="lecture-ai-101",
-                start_ts=200.0, end_ts=215.0,
+                segment_id="s2",
+                video_id="lecture-ai-101",
+                start_ts=200.0,
+                end_ts=215.0,
                 transcript="Supervised learning uses labeled data to train models",
-                text_score=0.88, visual_score=0.65, fused_score=0.79,
+                text_score=0.88,
+                visual_score=0.65,
+                fused_score=0.79,
             ),
             VideoSegmentResult(
-                segment_id="s3", video_id="workshop-ml-basics",
-                start_ts=45.0, end_ts=60.0,
+                segment_id="s3",
+                video_id="workshop-ml-basics",
+                start_ts=45.0,
+                end_ts=60.0,
                 transcript="In this workshop we will build a classifier from scratch",
-                text_score=0.82, visual_score=0.60, fused_score=0.73,
+                text_score=0.82,
+                visual_score=0.60,
+                fused_score=0.73,
             ),
         ]
         pipeline._retriever = mock_retriever
@@ -57,11 +69,13 @@ class TestE2EVideoRAG:
         # Mock LLM
         mock_llm = AsyncMock()
         mock_response = MagicMock()
-        mock_response.content = [MagicMock(
-            text="Machine learning is a branch of AI that allows systems to learn from data. "
-            "At [02:00] in the AI lecture, the instructor explains that ML enables systems "
-            "to improve through experience."
-        )]
+        mock_response.content = [
+            MagicMock(
+                text="Machine learning is a branch of AI that allows systems to learn from data. "
+                "At [02:00] in the AI lecture, the instructor explains that ML enables systems "
+                "to improve through experience."
+            )
+        ]
         mock_llm.messages.create.return_value = mock_response
         pipeline._llm_client = mock_llm
 
@@ -106,10 +120,14 @@ class TestE2EVideoRAG:
         mock_retriever = AsyncMock()
         mock_retriever.retrieve.return_value = [
             VideoSegmentResult(
-                segment_id="s1", video_id="specific-video",
-                start_ts=0.0, end_ts=10.0,
+                segment_id="s1",
+                video_id="specific-video",
+                start_ts=0.0,
+                end_ts=10.0,
                 transcript="Only from this video",
-                text_score=0.9, visual_score=0.7, fused_score=0.82,
+                text_score=0.9,
+                visual_score=0.7,
+                fused_score=0.82,
             ),
         ]
         pipeline._retriever = mock_retriever
@@ -121,11 +139,15 @@ class TestE2EVideoRAG:
         pipeline._llm_client = mock_llm
 
         request = QueryRequest(
-            query="test", pipeline="video_rag", filters={"video_id": "specific-video"},
+            query="test",
+            pipeline="video_rag",
+            filters={"video_id": "specific-video"},
         )
         response = await pipeline.run(request)
 
         mock_retriever.retrieve.assert_called_once_with(
-            query="test", top_k=5, video_id="specific-video",
+            query="test",
+            top_k=5,
+            video_id="specific-video",
         )
         assert response.metadata["video_ids"] == ["specific-video"]

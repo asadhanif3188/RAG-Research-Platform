@@ -50,9 +50,14 @@ class TestVideoRAGPipeline:
         mock_retriever = AsyncMock()
         mock_retriever.retrieve.return_value = [
             VideoSegmentResult(
-                segment_id="s1", video_id="v1", start_ts=10.0, end_ts=15.0,
+                segment_id="s1",
+                video_id="v1",
+                start_ts=10.0,
+                end_ts=15.0,
                 transcript="Machine learning is a subfield of AI",
-                text_score=0.9, visual_score=0.7, fused_score=0.82,
+                text_score=0.9,
+                visual_score=0.7,
+                fused_score=0.82,
             ),
         ]
         pipeline._retriever = mock_retriever
@@ -94,10 +99,14 @@ class TestVideoRAGPipeline:
         pipeline._llm_client = mock_llm
 
         request = QueryRequest(
-            query="test", pipeline="video_rag", filters={"video_id": "v1"},
+            query="test",
+            pipeline="video_rag",
+            filters={"video_id": "v1"},
         )
         await pipeline.run(request)
 
         pipeline._retriever.retrieve.assert_called_once_with(
-            query="test", top_k=5, video_id="v1",
+            query="test",
+            top_k=5,
+            video_id="v1",
         )

@@ -83,9 +83,7 @@ class SceneDetector:
                 cv2.normalize(hist, hist)
 
                 if prev_hist is not None:
-                    diff = cv2.compareHist(
-                        prev_hist, hist, cv2.HISTCMP_BHATTACHARYYA
-                    )
+                    diff = cv2.compareHist(prev_hist, hist, cv2.HISTCMP_BHATTACHARYYA)
                     if diff > self._threshold and (frame_idx - last_scene_frame) >= min_frame_gap:
                         timestamp = frame_idx / source_fps
                         keyframes.append(

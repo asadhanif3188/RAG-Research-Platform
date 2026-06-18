@@ -32,7 +32,9 @@ def render_video_player(
             f'<span style="margin-right:12px;"><b>{k}:</b> {v:.3f}</span>'
             for k, v in scores.items()
         ]
-        score_html = f'<div style="margin-top:4px;font-size:0.85em;color:#666;">{"".join(score_parts)}</div>'
+        score_html = (
+            f'<div style="margin-top:4px;font-size:0.85em;color:#666;">{"".join(score_parts)}</div>'
+        )
 
     start_fmt = _format_timestamp(start_ts)
     end_fmt = _format_timestamp(end_ts)
@@ -71,9 +73,7 @@ def render_segment_list(segments: list[dict[str, Any]]) -> str:
 
     parts: list[str] = []
     for video_id, segs in by_video.items():
-        parts.append(
-            f'<h3 style="margin:16px 0 8px;">Video: {video_id}</h3>'
-        )
+        parts.append(f'<h3 style="margin:16px 0 8px;">Video: {video_id}</h3>')
         for seg in segs:
             parts.append(
                 render_video_player(

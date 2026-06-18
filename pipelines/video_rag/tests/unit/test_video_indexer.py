@@ -95,9 +95,7 @@ class TestVideoIndexer:
 
     @patch("subprocess.run")
     @patch("video_rag.video_indexer.whisper")
-    def test_extract_audio(
-        self, mock_whisper: MagicMock, mock_run: MagicMock
-    ) -> None:
+    def test_extract_audio(self, mock_whisper: MagicMock, mock_run: MagicMock) -> None:
         mock_run.return_value = MagicMock(returncode=0)
 
         indexer = VideoIndexer()

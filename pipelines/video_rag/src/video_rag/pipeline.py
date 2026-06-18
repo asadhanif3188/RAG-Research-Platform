@@ -60,7 +60,8 @@ class VideoRAGPipeline:
         self._generation_model = generation_model
 
         self._clip_embedder = CLIPEmbedder(
-            model_name=clip_model, device=clip_device,
+            model_name=clip_model,
+            device=clip_device,
         )
         self._retriever: SegmentRetriever | None = None
         self._knowledge_graph: KnowledgeGraph | None = None
@@ -163,13 +164,12 @@ class VideoRAGPipeline:
             model=self._generation_model,
             max_tokens=1024,
             system=system_prompt,
-            messages=[{
-                "role": "user",
-                "content": (
-                    f"Question: {query}\n\n"
-                    f"Video transcript segments:\n{context}"
-                ),
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": (f"Question: {query}\n\nVideo transcript segments:\n{context}"),
+                }
+            ],
         )
         return response.content[0].text
 

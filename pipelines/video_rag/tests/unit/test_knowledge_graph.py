@@ -20,7 +20,10 @@ class TestKnowledgeGraph:
         kg, mock_neo4j = self._make_kg()
         await kg.index_video("v1", "Test", "https://example.com", 120.0)
         mock_neo4j.upsert_video.assert_called_once_with(
-            video_id="v1", title="Test", url="https://example.com", duration_s=120.0,
+            video_id="v1",
+            title="Test",
+            url="https://example.com",
+            duration_s=120.0,
         )
 
     @pytest.mark.asyncio
@@ -50,8 +53,14 @@ class TestKnowledgeGraph:
     async def test_query_segments_by_topic(self) -> None:
         kg, mock_neo4j = self._make_kg()
         mock_neo4j.get_segments_by_topic.return_value = [
-            {"segment_id": "s1", "video_id": "v1", "start_s": 0, "end_s": 5,
-             "transcript": "Hello", "embedding_id": "e1"},
+            {
+                "segment_id": "s1",
+                "video_id": "v1",
+                "start_s": 0,
+                "end_s": 5,
+                "transcript": "Hello",
+                "embedding_id": "e1",
+            },
         ]
         mock_neo4j.get_related_topics.return_value = []
 
@@ -63,10 +72,26 @@ class TestKnowledgeGraph:
     async def test_query_segments_expands_related(self) -> None:
         kg, mock_neo4j = self._make_kg()
         mock_neo4j.get_segments_by_topic.side_effect = [
-            [{"segment_id": "s1", "video_id": "v1", "start_s": 0, "end_s": 5,
-              "transcript": "ML", "embedding_id": "e1"}],
-            [{"segment_id": "s2", "video_id": "v1", "start_s": 10, "end_s": 15,
-              "transcript": "DL", "embedding_id": "e2"}],
+            [
+                {
+                    "segment_id": "s1",
+                    "video_id": "v1",
+                    "start_s": 0,
+                    "end_s": 5,
+                    "transcript": "ML",
+                    "embedding_id": "e1",
+                }
+            ],
+            [
+                {
+                    "segment_id": "s2",
+                    "video_id": "v1",
+                    "start_s": 10,
+                    "end_s": 15,
+                    "transcript": "DL",
+                    "embedding_id": "e2",
+                }
+            ],
         ]
         mock_neo4j.get_related_topics.return_value = ["deep_learning"]
 
@@ -77,10 +102,26 @@ class TestKnowledgeGraph:
     async def test_query_segments_deduplicates(self) -> None:
         kg, mock_neo4j = self._make_kg()
         mock_neo4j.get_segments_by_topic.side_effect = [
-            [{"segment_id": "s1", "video_id": "v1", "start_s": 0, "end_s": 5,
-              "transcript": "AI", "embedding_id": "e1"}],
-            [{"segment_id": "s1", "video_id": "v1", "start_s": 0, "end_s": 5,
-              "transcript": "AI", "embedding_id": "e1"}],  # duplicate
+            [
+                {
+                    "segment_id": "s1",
+                    "video_id": "v1",
+                    "start_s": 0,
+                    "end_s": 5,
+                    "transcript": "AI",
+                    "embedding_id": "e1",
+                }
+            ],
+            [
+                {
+                    "segment_id": "s1",
+                    "video_id": "v1",
+                    "start_s": 0,
+                    "end_s": 5,
+                    "transcript": "AI",
+                    "embedding_id": "e1",
+                }
+            ],  # duplicate
         ]
         mock_neo4j.get_related_topics.return_value = ["ai"]
 

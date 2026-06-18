@@ -33,7 +33,9 @@ class TestCLIPEmbedder:
         mock_model = MagicMock()
         mock_preprocess = MagicMock()
         mock_open_clip.create_model_and_transforms.return_value = (
-            mock_model, None, mock_preprocess
+            mock_model,
+            None,
+            mock_preprocess,
         )
         mock_open_clip.get_tokenizer.return_value = MagicMock()
 

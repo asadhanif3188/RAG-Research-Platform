@@ -162,14 +162,26 @@ class TestSegmentRetriever:
         frame_emb_2 = list(np.random.randn(512).astype(float))
         mock_vs.search.return_value = [
             {
-                "chunk_id": "s1", "content": "text heavy", "score": 0.95,
-                "metadata": {"video_id": "v1", "start_ts": 0, "end_ts": 5,
-                             "frame_embedding": frame_emb_1},
+                "chunk_id": "s1",
+                "content": "text heavy",
+                "score": 0.95,
+                "metadata": {
+                    "video_id": "v1",
+                    "start_ts": 0,
+                    "end_ts": 5,
+                    "frame_embedding": frame_emb_1,
+                },
             },
             {
-                "chunk_id": "s2", "content": "visual heavy", "score": 0.50,
-                "metadata": {"video_id": "v1", "start_ts": 10, "end_ts": 15,
-                             "frame_embedding": frame_emb_2},
+                "chunk_id": "s2",
+                "content": "visual heavy",
+                "score": 0.50,
+                "metadata": {
+                    "video_id": "v1",
+                    "start_ts": 10,
+                    "end_ts": 15,
+                    "frame_embedding": frame_emb_2,
+                },
             },
         ]
 

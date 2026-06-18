@@ -54,7 +54,9 @@ async def run_demo(video_source: str, query: str) -> None:
     )
     video_id = str(uuid.uuid4())[:8]
     chunks = chunker.chunks_from_segments(
-        video_id=video_id, segments=segments, frame_embeddings=frame_mapping,
+        video_id=video_id,
+        segments=segments,
+        frame_embeddings=frame_mapping,
     )
     logger.info("Created %d chunks with timestamps", len(chunks))
 
@@ -76,8 +78,10 @@ def run_mcp_server() -> None:
     logger.info("Starting MCP server...")
     print("MCP server requires full pipeline setup (pgvector, Neo4j, CLIP).")
     print("Configure in your Claude MCP settings:")
-    print('  "video-rag": {"command": "uv", "args": ["run", "fastmcp", "run", '
-          '"pipelines/video_rag/src/video_rag/mcp_server.py"]}')
+    print(
+        '  "video-rag": {"command": "uv", "args": ["run", "fastmcp", "run", '
+        '"pipelines/video_rag/src/video_rag/mcp_server.py"]}'
+    )
 
 
 def main() -> None:

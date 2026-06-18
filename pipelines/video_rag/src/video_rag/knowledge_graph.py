@@ -52,7 +52,10 @@ class KnowledgeGraph:
     ) -> None:
         """Create or update a Video node in the graph."""
         await self._neo4j.upsert_video(
-            video_id=video_id, title=title, url=url, duration_s=duration_s,
+            video_id=video_id,
+            title=title,
+            url=url,
+            duration_s=duration_s,
         )
 
     async def index_segment(
@@ -100,15 +103,17 @@ class KnowledgeGraph:
         response = self._client.messages.create(
             model=self._model,
             max_tokens=200,
-            messages=[{
-                "role": "user",
-                "content": (
-                    "Extract 1-5 key topics from this transcript segment. "
-                    "Return ONLY a comma-separated list of lowercase topic names, "
-                    "no explanation.\n\n"
-                    f"Text: {text[:500]}"
-                ),
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": (
+                        "Extract 1-5 key topics from this transcript segment. "
+                        "Return ONLY a comma-separated list of lowercase topic names, "
+                        "no explanation.\n\n"
+                        f"Text: {text[:500]}"
+                    ),
+                }
+            ],
         )
         raw = response.content[0].text.strip()
         topics = [t.strip().lower().replace(" ", "_") for t in raw.split(",") if t.strip()]

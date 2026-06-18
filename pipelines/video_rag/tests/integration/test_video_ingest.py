@@ -33,8 +33,16 @@ class TestVideoIngestPipeline:
         # 2. Simulate keyframes at scene changes
         keyframes = [
             Keyframe(timestamp_s=0.0, frame_index=0, frame=np.zeros((100, 100, 3), dtype=np.uint8)),
-            Keyframe(timestamp_s=10.0, frame_index=300, frame=np.ones((100, 100, 3), dtype=np.uint8) * 128),
-            Keyframe(timestamp_s=20.0, frame_index=600, frame=np.ones((100, 100, 3), dtype=np.uint8) * 255),
+            Keyframe(
+                timestamp_s=10.0,
+                frame_index=300,
+                frame=np.ones((100, 100, 3), dtype=np.uint8) * 128,
+            ),
+            Keyframe(
+                timestamp_s=20.0,
+                frame_index=600,
+                frame=np.ones((100, 100, 3), dtype=np.uint8) * 255,
+            ),
         ]
 
         # 3. Create fake CLIP embeddings for keyframes

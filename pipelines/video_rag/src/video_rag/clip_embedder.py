@@ -45,7 +45,9 @@ class CLIPEmbedder:
     def connect(self) -> None:
         """Load the CLIP model, preprocess transform, and tokenizer."""
         model, _, preprocess = open_clip.create_model_and_transforms(
-            self._model_name, pretrained=self._pretrained, device=self._device,
+            self._model_name,
+            pretrained=self._pretrained,
+            device=self._device,
         )
         model.eval()
         self._model = model

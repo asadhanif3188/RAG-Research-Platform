@@ -49,17 +49,17 @@ class VideoIndexer:
     def connect(self) -> None:
         """Load the Whisper model into memory."""
         self._model = whisper.load_model(self._whisper_model_name, device=self._device)
-        logger.info(
-            "Whisper model '%s' loaded on %s", self._whisper_model_name, self._device
-        )
+        logger.info("Whisper model '%s' loaded on %s", self._whisper_model_name, self._device)
 
     def download_video(self, url: str) -> Path:
         """Download a video from a URL using yt-dlp and return the local path."""
         output_template = str(Path(self._download_dir) / "%(id)s.%(ext)s")
         cmd = [
             "yt-dlp",
-            "--format", "bestaudio[ext=m4a]/bestaudio/best",
-            "--output", output_template,
+            "--format",
+            "bestaudio[ext=m4a]/bestaudio/best",
+            "--output",
+            output_template,
             "--no-playlist",
             "--quiet",
             url,
@@ -72,8 +72,10 @@ class VideoIndexer:
         cmd_path = [
             "yt-dlp",
             "--get-filename",
-            "--format", "bestaudio[ext=m4a]/bestaudio/best",
-            "--output", output_template,
+            "--format",
+            "bestaudio[ext=m4a]/bestaudio/best",
+            "--output",
+            output_template,
             "--no-playlist",
             url,
         ]
@@ -89,11 +91,20 @@ class VideoIndexer:
             return audio_path
 
         cmd = [
-            "ffmpeg", "-i", str(video_path),
-            "-vn", "-acodec", "pcm_s16le",
-            "-ar", "16000", "-ac", "1",
+            "ffmpeg",
+            "-i",
+            str(video_path),
+            "-vn",
+            "-acodec",
+            "pcm_s16le",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
             str(audio_path),
-            "-y", "-loglevel", "error",
+            "-y",
+            "-loglevel",
+            "error",
         ]
         subprocess.run(cmd, check=True, capture_output=True, text=True)
         logger.info("Extracted audio to %s", audio_path)
