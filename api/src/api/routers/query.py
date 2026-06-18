@@ -14,6 +14,7 @@ from api.dependencies import (  # noqa: TC001
     SelfRAGPipelineDep,
     VideoRAGPipelineDep,
 )
+from api.middleware.observability import QueryMetric, get_metrics_collector
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
 
 logger = logging.getLogger(__name__)
@@ -48,21 +49,38 @@ async def run_query(
     try:
         match request.pipeline:
             case PipelineStrategy.FASTEST_RAG:
-                return await naive_pipeline.run(request)
+                response = await naive_pipeline.run(request)
             case PipelineStrategy.MULTIMODAL_RAG:
-                return await multimodal_pipeline.run(request)
+                response = await multimodal_pipeline.run(request)
             case PipelineStrategy.CORRECTIVE_RAG:
-                return await crag_pipeline.run(request)
+                response = await crag_pipeline.run(request)
             case PipelineStrategy.SELF_RAG:
-                return await self_rag_pipeline.run(request)
+                response = await self_rag_pipeline.run(request)
             case PipelineStrategy.VIDEO_RAG:
-                return await video_rag_pipeline.run(request)
+                response = await video_rag_pipeline.run(request)
             case _:
                 raise HTTPException(
                     status_code=status.HTTP_501_NOT_IMPLEMENTED,
                     detail=f"Pipeline '{request.pipeline}' is not yet implemented. "
                     "Available: fastest_rag, multimodal_rag, corrective_rag, self_rag, video_rag",
                 )
+
+        # Record metrics
+        meta = response.metadata
+        collector = get_metrics_collector()
+        collector.record(
+            QueryMetric(
+                pipeline=response.pipeline,
+                query=request.query,
+                latency_ms=response.latency_ms or 0,
+                total_cost_usd=meta.get("total_cost_usd", 0),
+                input_tokens=meta.get("input_tokens", 0),
+                output_tokens=meta.get("output_tokens", 0),
+                cache_hit=response.cache_hit,
+            )
+        )
+
+        return response
     except HTTPException:
         raise
     except Exception as exc:

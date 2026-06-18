@@ -1,186 +1,351 @@
 # RAG Research Platform
 
-A unified monorepo showcasing five production-grade RAG pipeline strategies — built as a single platform with shared infrastructure, an A/B comparison UI, and RAGAS-based evaluation.
+A unified monorepo showcasing **five production-grade RAG pipeline strategies** — built as a single platform with shared infrastructure, an A/B comparison UI, real-time metrics dashboard, and RAGAS-based evaluation.
 
 ## Architecture
 
 ```
+                            ┌──────────────────────────┐
+                            │     Chainlit UI           │
+                            │  ┌──────┐ ┌───────────┐  │
+                            │  │Select│ │A/B Compare│  │
+                            │  │Panel │ │   View    │  │
+                            │  └──┬───┘ └─────┬─────┘  │
+                            │     │           │         │
+                            │  ┌──▼───────────▼──────┐  │
+                            │  │  Metrics Dashboard  │  │
+                            │  └─────────┬───────────┘  │
+                            └────────────┼──────────────┘
+                                         │ HTTP
+                            ┌────────────▼──────────────┐
+                            │    FastAPI Router          │
+                            │    POST /query             │
+                            │    GET  /metrics/summary   │
+                            │    POST /benchmark/run     │
+                            ├───────────────────────────-┤
+                            │  Observability Middleware   │
+                            │  (cost tracking, LangFuse) │
+                            └────────────┬──────────────┘
+                                         │
+              ┌──────────┬───────────┬───┴───┬───────────┐
+              ▼          ▼           ▼       ▼           ▼
+        ┌──────────┐┌──────────┐┌────────┐┌────────┐┌─────────┐
+        │ Fastest  ││Multimodal││  CRAG  ││Self-RAG││Video RAG│
+        │   RAG    ││   RAG    ││        ││        ││ + MCP   │
+        │          ││          ││LangGraph││Agentic ││Whisper  │
+        │  Redis   ││Provenance││+Tavily ││+HyDE   ││+CLIP    │
+        │  Cache   ││ Tracker  ││Fallback││Grading ││+Neo4j   │
+        └────┬─────┘└────┬─────┘└───┬────┘└───┬────┘└────┬────┘
+             │           │          │         │          │
+             └─────┬─────┴────┬─────┴─────┬───┘          │
+                   ▼          ▼           ▼              ▼
+            ┌───────────┐┌─────────┐┌──────────┐ ┌───────────┐
+            │ pgvector  ││  Redis  ││ Embedding│ │  Neo4j    │
+            │(Postgres) ││ Cache   ││ Service  │ │  Graph    │
+            └───────────┘└─────────┘└──────────┘ └───────────┘
+```
+
+```
 rag-research-platform/
-├── shared/          ← Core infrastructure: models, storage, embeddings, ingestion, eval
-├── pipelines/       ← Five RAG strategies (built in later phases)
-│   ├── fastest_rag/
-│   ├── multimodal_rag/
-│   ├── corrective_rag/
-│   ├── self_rag/
-│   └── video_rag/
-├── api/             ← FastAPI pipeline router
-├── ui/              ← Chainlit chat + metrics dashboard
-├── infra/           ← SQL init scripts
+├── shared/              ← Core: models, storage, embeddings, ingestion, eval
+├── pipelines/
+│   ├── fastest_rag/     ← Phase 1: Baseline + Redis semantic cache
+│   ├── multimodal_rag/  ← Phase 2: Text + image + table with provenance
+│   ├── corrective_rag/  ← Phase 3: LangGraph + relevance grading + web search
+│   ├── self_rag/        ← Phase 4: Agentic graph + hallucination detection
+│   └── video_rag/       ← Phase 5: Whisper + CLIP + Neo4j knowledge graph
+├── api/                 ← FastAPI router + cost tracking middleware
+├── ui/                  ← Chainlit: pipeline selector, A/B compare, metrics
+├── infra/               ← SQL init scripts
+├── docs/                ← Deployment guide
 └── docker-compose.yml
 ```
 
 ## Quick Start
 
-### 1. Prerequisites
+### Prerequisites
 
-- Docker & Docker Compose
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (`pip install uv`)
+- Docker & Docker Compose
 
-### 2. Clone and configure
+### Setup
 
 ```bash
+# Clone and configure
 git clone https://github.com/your-username/rag-research-platform
 cd rag-research-platform
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY and ANTHROPIC_API_KEY
-```
+# Edit .env: add ANTHROPIC_API_KEY, OPENAI_API_KEY, TAVILY_API_KEY
 
-### 3. Start all services
-
-```bash
+# Start infrastructure
 docker-compose up -d
+
+# Install all workspace packages
+uv sync --all-packages
+
+# Start the API server
+uv run uvicorn api.src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Start the Chainlit UI (separate terminal)
+uv run chainlit run ui/app.py --port 8501
 ```
 
-This starts:
+## Pipeline Strategies
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| PostgreSQL + pgvector | `localhost:5432` | Primary vector store |
-| Qdrant | `localhost:6333` | Binary-quantized vector store |
-| Redis | `localhost:6379` | Semantic query cache |
-| Neo4j | `localhost:7474` | Video topic knowledge graph |
-| LangFuse | `localhost:3000` | LLM observability dashboard |
+### 1. Naive RAG (Fastest)
 
-Verify all services are healthy:
+**When to use:** Lowest latency, cost-optimized queries where accuracy is acceptable.
+
+- Embed → retrieve top-k → generate with Claude
+- **Redis semantic cache** with configurable similarity threshold (default 0.92)
+- Tracks cache hit/miss rates and embedding costs
 
 ```bash
-docker-compose ps
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is retrieval-augmented generation?", "pipeline": "fastest_rag"}'
 ```
 
-### 4. Install Python dependencies
+### 2. Multimodal RAG
+
+**When to use:** Documents with images, tables, and mixed content types.
+
+- Per-type retrieval quotas: 50% text / 30% image / 20% table
+- **Provenance tracking**: maps each answer sentence to its source chunk
+- Colour-coded attribution UI with confidence scores
 
 ```bash
-uv sync
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Show me the performance comparison table", "pipeline": "multimodal_rag"}'
 ```
 
-### 5. Run unit tests
+### 3. Corrective RAG (CRAG)
+
+**When to use:** Queries that may need external knowledge when local docs are insufficient.
+
+- **LangGraph** state machine: retrieve → grade → route
+- Three-way routing: RELEVANT → generate, IRRELEVANT → web search (Tavily), AMBIGUOUS → decompose
+- Claude Haiku for cost-efficient relevance grading
 
 ```bash
-uv run pytest shared/tests/unit/ -v
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What are the latest ML trends in 2026?", "pipeline": "corrective_rag"}'
 ```
 
-### 6. Run integration tests (requires Docker)
+### 4. Self-RAG
+
+**When to use:** High-stakes queries requiring maximum answer quality and grounding.
+
+- Most complex pipeline with **4 decision nodes**
+- Retrieve-or-not → relevance grading → hallucination check → answer quality verification
+- **HyDE** (Hypothetical Document Expansion) for ambiguous queries
+- Max 2 retry loops before returning best-effort answer
 
 ```bash
-uv run pytest shared/tests/integration/ -v -m integration
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Explain the transformer attention mechanism in detail", "pipeline": "self_rag"}'
 ```
 
----
+### 5. Video RAG with MCP
 
-## Shared Infrastructure (`shared/`)
+**When to use:** Searching and querying video content by text or visual similarity.
 
-The `shared` package is the foundation that all pipeline packages depend on.
+- **Whisper** transcription → timestamp-chunked segments
+- **CLIP** visual embeddings for keyframe search
+- Dual retrieval: `fused_score = text_weight × text_score + visual_weight × visual_score`
+- **Neo4j** knowledge graph: Video → Topic → Segment relationships
+- **MCP server** exposes Claude-callable tools: `search_video`, `get_segment`, `list_videos`
 
-### Key modules
+```bash
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Find the section about embeddings in the lecture", "pipeline": "video_rag"}'
+```
+
+## A/B Comparison
+
+Compare any two pipelines side-by-side on the same query:
+
+- Runs both pipelines in parallel
+- Displays answers, sources, cost, and latency
+- Highlights the winner for each metric (lower latency/cost = green)
+- Available in the Chainlit UI compare page
+
+## Metrics Dashboard
+
+Real-time pipeline performance monitoring:
+
+| Metric | Description |
+|--------|-------------|
+| **RAGAS Faithfulness** | How grounded is the answer in retrieved context |
+| **RAGAS Relevancy** | How relevant is the answer to the query |
+| **Context Precision** | Fraction of retrieved chunks that are relevant |
+| **Context Recall** | Fraction of relevant chunks that were retrieved |
+| **p50/p95/p99 Latency** | Response time percentiles |
+| **QPS** | Queries per second throughput |
+| **Avg Cost** | USD cost per query (LLM + embedding tokens) |
+| **Cache Hit Rate** | Semantic cache effectiveness (Fastest RAG) |
+
+Export metrics as CSV for external analysis.
+
+## API Reference
+
+### POST /query
+
+Route a query to a specific pipeline.
+
+```json
+{
+  "query": "What is RAG?",
+  "pipeline": "fastest_rag",
+  "top_k": 5,
+  "use_cache": true
+}
+```
+
+**Response:**
+
+```json
+{
+  "query": "What is RAG?",
+  "answer": "RAG (Retrieval-Augmented Generation) combines...",
+  "pipeline": "fastest_rag",
+  "sources": [
+    {
+      "chunk_id": "abc123",
+      "document_id": "paper-001",
+      "content": "Retrieved chunk text...",
+      "score": 0.94,
+      "metadata": {"page_number": 3}
+    }
+  ],
+  "latency_ms": 245.3,
+  "cache_hit": false,
+  "metadata": {
+    "total_cost_usd": 0.00035,
+    "input_tokens": 1200,
+    "output_tokens": 350
+  }
+}
+```
+
+### GET /metrics/summary
+
+Aggregated metrics per pipeline (RAGAS scores, latency percentiles, cost, cache stats).
+
+### GET /metrics/history?pipeline=self_rag&limit=100
+
+Time-series query metrics, optionally filtered by pipeline.
+
+### POST /benchmark/run
+
+Queue an async benchmark run comparing full-precision vs quantized retrieval.
+
+### GET /health
+
+Service health check.
+
+## Shared Infrastructure
+
+### Key Modules
 
 | Module | Description |
 |--------|-------------|
-| `shared.config` | Pydantic Settings — all config from env vars |
-| `shared.models` | `DocumentChunk`, `QueryRequest`, `QueryResponse`, `RetrievalResult`, `EvalResult` |
-| `shared.storage.vector_store` | `PgVectorClient` + `QdrantVectorClient` behind `VectorStoreClient` ABC |
-| `shared.storage.cache` | `RedisSemanticCache` — cosine-similarity cache with TTL |
-| `shared.storage.neo4j_client` | `Neo4jClient` — video topic graph CRUD |
-| `shared.embeddings.service` | `EmbeddingService` — batched OpenAI embeddings with caching + cost tracking |
-| `shared.ingestion.chunking` | `FixedSizeChunker`, `SlidingWindowChunker`, `SemanticChunker` |
-| `shared.ingestion.pdf_parser` | `PDFParser` — text + table extraction via PyMuPDF |
-| `shared.ingestion.pipeline` | `DocumentIngestionPipeline` — PDF → chunks → embeddings → vector store |
-| `shared.eval.ragas_runner` | `RAGASRunner` — faithfulness, answer relevancy, context precision/recall |
-
-### Chunking strategies
-
-```python
-from shared.ingestion.chunking import ChunkingStrategies, ChunkingStrategy
-
-chunker = ChunkingStrategies.get(ChunkingStrategy.SEMANTIC, chunk_size=512, overlap=64)
-chunks = chunker.chunk(text, document_id="my-doc")
-```
+| `shared.config` | Pydantic Settings — all config from `.env` |
+| `shared.models` | `QueryRequest`, `QueryResponse`, `RetrievalResult`, `EvalResult` |
+| `shared.storage.vector_store` | `PgVectorClient` — pgvector with cosine similarity |
+| `shared.storage.cache` | `RedisSemanticCache` — embedding-based query cache |
+| `shared.storage.neo4j_client` | `Neo4jClient` — video knowledge graph |
+| `shared.embeddings.service` | `EmbeddingService` — batched OpenAI embeddings |
+| `shared.ingestion.pipeline` | PDF → chunks → embeddings → vector store |
+| `shared.eval.ragas_runner` | RAGAS evaluation (faithfulness, relevancy, precision, recall) |
 
 ### Ingest a PDF
 
 ```python
 from shared.ingestion.pipeline import DocumentIngestionPipeline
-from shared.ingestion.chunking import ChunkingStrategy
-from shared.storage.vector_store import PgVectorClient
-from shared.embeddings.service import EmbeddingService
 
-vector_store = PgVectorClient(database_url=settings.database_url)
-await vector_store.connect()
-
-embedding_svc = EmbeddingService(api_key=settings.openai_api_key)
-embedding_svc.connect()
-
-pipeline = DocumentIngestionPipeline(
-    vector_store=vector_store,
-    embedding_service=embedding_svc,
-    chunking_strategy=ChunkingStrategy.SEMANTIC,
-)
+pipeline = DocumentIngestionPipeline(vector_store=vs, embedding_service=emb)
 result = await pipeline.ingest_pdf("paper.pdf")
 print(f"Stored {result.total_chunks} chunks in {result.elapsed_seconds:.2f}s")
 ```
 
-### Evaluate with RAGAS
-
-```python
-from shared.eval.ragas_runner import RAGASRunner
-
-runner = RAGASRunner(
-    anthropic_api_key=settings.anthropic_api_key,
-    openai_api_key=settings.openai_api_key,
-)
-eval_result = await runner.evaluate(
-    query="What is RAG?",
-    answer="RAG stands for Retrieval-Augmented Generation...",
-    contexts=["<retrieved chunk 1>", "<retrieved chunk 2>"],
-    ground_truth="Retrieval-Augmented Generation combines...",
-)
-print(f"Faithfulness: {eval_result.faithfulness:.3f}")
-print(f"Aggregate: {eval_result.aggregate_score():.3f}")
-```
-
----
-
 ## Environment Variables
 
-See [.env.example](.env.example) for the full list. Key variables:
+See [.env.example](.env.example) for the full list.
 
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | For embeddings (text-embedding-3-large) |
-| `ANTHROPIC_API_KEY` | For generation (Claude models) |
-| `DATABASE_URL` | PostgreSQL connection string |
-| `QDRANT_HOST` / `QDRANT_PORT` | Qdrant connection |
-| `REDIS_URL` | Redis connection |
-| `NEO4J_URI` | Neo4j Bolt URI |
-| `LANGFUSE_SECRET_KEY` | LangFuse observability |
-| `SEMANTIC_CACHE_THRESHOLD` | Cosine similarity threshold for cache hits (default: 0.92) |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANTHROPIC_API_KEY` | Yes | Claude API key for LLM generation |
+| `OPENAI_API_KEY` | Yes | OpenAI key for text-embedding-3-large |
+| `TAVILY_API_KEY` | Yes | Tavily key for CRAG web search fallback |
+| `DATABASE_URL` | No | PostgreSQL+asyncpg connection string |
+| `REDIS_URL` | No | Redis connection string |
+| `NEO4J_URI` | No | Neo4j Bolt URI |
+| `LANGFUSE_SECRET_KEY` | No | LangFuse observability secret |
 
----
+## Cost Estimates
+
+| Pipeline | Avg Cost/Query | Notes |
+|----------|---------------|-------|
+| Fastest RAG | ~$0.0003 | Cached queries are free |
+| Multimodal RAG | ~$0.0012 | More context = more tokens |
+| CRAG | ~$0.0008 | Haiku grading + occasional web search |
+| Self-RAG | ~$0.0015 | Multiple LLM calls (grading + generation) |
+| Video RAG | ~$0.0010 | Dual retrieval + generation |
+
+**At 1000 queries/day:** ~$74/month total (API + infrastructure). See [docs/deployment.md](docs/deployment.md).
+
+## Testing
+
+```bash
+# All tests
+uv run pytest
+
+# Unit tests only
+uv run pytest -m unit
+
+# Integration tests (requires Docker services)
+uv run pytest -m integration
+
+# E2E API tests
+uv run pytest api/tests/e2e/ -v
+
+# Coverage
+uv run pytest --cov=shared --cov=api --cov-report=term-missing
+```
+
+## Linting
+
+```bash
+uv run ruff format .
+uv run ruff check .
+```
 
 ## Implementation Phases
 
 | Phase | Status | Description |
 |-------|--------|-------------|
 | 0 — Shared Infrastructure | **Done** | Vector store, ingestion, eval harness |
-| 1 — Fastest RAG Stack | Pending | Baseline + binary quantization + Redis cache |
-| 2 — Multimodal RAG | Pending | Vision descriptions for images/tables |
-| 3 — Corrective RAG (CRAG) | Pending | LangGraph with relevance grading + Tavily fallback |
-| 4 — Self-RAG | Pending | Agentic decision graph with HyDE |
-| 5 — MCP Video RAG | Pending | Whisper + CLIP + Neo4j topic graph |
-| 6 — Integration & Polish | Pending | Unified UI, A/B comparison, benchmark dashboard |
-
----
+| 1 — Fastest RAG Stack | **Done** | Baseline + Redis semantic cache + benchmarks |
+| 2 — Multimodal RAG | **Done** | Vision descriptions + provenance tracking |
+| 3 — Corrective RAG (CRAG) | **Done** | LangGraph + relevance grading + Tavily fallback |
+| 4 — Self-RAG | **Done** | Agentic decision graph + HyDE + hallucination check |
+| 5 — Video RAG with MCP | **Done** | Whisper + CLIP + Neo4j + MCP server |
+| 6 — Integration & Polish | **Done** | Unified UI, A/B comparison, metrics, deployment |
 
 ## Tech Stack
 
-Python 3.12 · uv workspaces · FastAPI · Chainlit · LangGraph · Claude API · OpenAI Embeddings · pgvector · Qdrant · Redis · Neo4j · LangFuse · RAGAS · PyMuPDF · Pydantic v2
+Python 3.12 · uv workspaces · FastAPI · Chainlit · LangGraph · Claude API · OpenAI Embeddings · pgvector · Qdrant · Redis · Neo4j · LangFuse · RAGAS · Whisper · CLIP · MCP · Pydantic v2
+
+## Future Work
+
+- **Nomic Embeddings**: Replace OpenAI embeddings with open-weight Nomic-embed for cost savings
+- **Fine-tuned graders**: Train task-specific relevance/hallucination graders
+- **Streaming responses**: SSE streaming for real-time answer generation
+- **Multi-tenant**: Per-user document collections and pipeline preferences
+- **Evaluation harness**: Automated benchmark suite on 50-query test sets with CI integration
