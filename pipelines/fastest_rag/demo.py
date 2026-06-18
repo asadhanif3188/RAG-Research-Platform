@@ -67,9 +67,21 @@ async def run_mock_query(query: str, use_cache: bool = True) -> dict:
             "This grounds the answer in factual data and reduces hallucinations."
         ),
         "sources": [
-            {"content": "RAG combines retrieval with generation for grounded answers...", "score": 0.94, "document_id": "doc_001"},
-            {"content": "Binary quantization reduces vector size by 32x with minimal recall loss...", "score": 0.87, "document_id": "doc_002"},
-            {"content": "Semantic caching stores query embeddings to skip repeated LLM calls...", "score": 0.82, "document_id": "doc_003"},
+            {
+                "content": "RAG combines retrieval with generation for grounded answers...",
+                "score": 0.94,
+                "document_id": "doc_001",
+            },
+            {
+                "content": "Binary quantization reduces vector size by 32x with minimal recall loss...",
+                "score": 0.87,
+                "document_id": "doc_002",
+            },
+            {
+                "content": "Semantic caching stores query embeddings to skip repeated LLM calls...",
+                "score": 0.82,
+                "document_id": "doc_003",
+            },
         ],
         "cache_hit": False,
         "latency_ms": 85.2,
@@ -145,7 +157,9 @@ tab_query, tab_benchmark, tab_cache = st.tabs(["Query", "Benchmark", "Cache Stat
 # ── Query tab ────────────────────────────────────────────────────────────────
 
 with tab_query:
-    query = st.text_input("Enter your query:", placeholder="What is retrieval-augmented generation?")
+    query = st.text_input(
+        "Enter your query:", placeholder="What is retrieval-augmented generation?"
+    )
 
     col1, col2 = st.columns(2)
     run_button = col1.button("Run Query", type="primary")

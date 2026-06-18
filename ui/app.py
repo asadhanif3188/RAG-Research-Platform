@@ -100,7 +100,9 @@ async def _handle_command(text: str) -> None:
         await cl.Message(content="Available pipelines:\n" + "\n".join(lines)).send()
 
     else:
-        await cl.Message(content=f"Unknown command `{cmd}`. Try `/compare`, `/metrics`, `/select`, or `/pipelines`.").send()
+        await cl.Message(
+            content=f"Unknown command `{cmd}`. Try `/compare`, `/metrics`, `/select`, or `/pipelines`."
+        ).send()
 
 
 async def _run_query(query: str, pipeline: str) -> None:
@@ -167,7 +169,9 @@ async def _run_query(query: str, pipeline: str) -> None:
 
 async def _run_comparison(query: str, pipeline_a: str, pipeline_b: str) -> None:
     """Run A/B comparison and display results."""
-    await cl.Message(content=f"Running A/B comparison: **{pipeline_a}** vs **{pipeline_b}**...").send()
+    await cl.Message(
+        content=f"Running A/B comparison: **{pipeline_a}** vs **{pipeline_b}**..."
+    ).send()
 
     try:
         result_a, result_b = await compare_pipelines(query, pipeline_a, pipeline_b, API_BASE)
