@@ -18,7 +18,9 @@ from multimodal_rag.pipeline import MultimodalRAGPipeline
 from self_rag.pipeline import SelfRAGPipeline
 from shared.config import get_settings
 from shared.embeddings.service import EmbeddingService
+from shared.storage.neo4j_client import Neo4jClient
 from shared.storage.vector_store import PgVectorClient
+from video_rag.pipeline import VideoRAGPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,8 @@ _naive_pipeline: NaiveRAGPipeline | None = None
 _multimodal_pipeline: MultimodalRAGPipeline | None = None
 _crag_pipeline: CRAGPipeline | None = None
 _self_rag_pipeline: SelfRAGPipeline | None = None
+_video_rag_pipeline: VideoRAGPipeline | None = None
+_neo4j_client: Neo4jClient | None = None
 
 
 async def get_embedding_service() -> EmbeddingService:
@@ -142,6 +146,37 @@ async def get_self_rag_pipeline(
     return _self_rag_pipeline
 
 
+async def get_neo4j_client() -> Neo4jClient:
+    global _neo4j_client
+    if _neo4j_client is None:
+        settings = get_settings()
+        _neo4j_client = Neo4jClient(
+            uri=settings.neo4j_uri,
+            user=settings.neo4j_user,
+            password=settings.neo4j_password,
+        )
+        await _neo4j_client.connect()
+    return _neo4j_client
+
+
+async def get_video_rag_pipeline(
+    vector_store: PgVectorClient = Depends(get_pgvector_client),
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+    neo4j_client: Neo4jClient = Depends(get_neo4j_client),
+) -> VideoRAGPipeline:
+    global _video_rag_pipeline
+    if _video_rag_pipeline is None:
+        settings = get_settings()
+        _video_rag_pipeline = VideoRAGPipeline(
+            vector_store=vector_store,
+            embedding_service=embedding_service,
+            neo4j_client=neo4j_client,
+            anthropic_api_key=settings.anthropic_api_key,
+        )
+        _video_rag_pipeline.connect()
+    return _video_rag_pipeline
+
+
 # Type aliases for cleaner route signatures
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
 PgVectorDep = Annotated[PgVectorClient, Depends(get_pgvector_client)]
@@ -150,3 +185,4 @@ NaivePipelineDep = Annotated[NaiveRAGPipeline, Depends(get_naive_pipeline)]
 MultimodalPipelineDep = Annotated[MultimodalRAGPipeline, Depends(get_multimodal_pipeline)]
 CRAGPipelineDep = Annotated[CRAGPipeline, Depends(get_crag_pipeline)]
 SelfRAGPipelineDep = Annotated[SelfRAGPipeline, Depends(get_self_rag_pipeline)]
+VideoRAGPipelineDep = Annotated[VideoRAGPipeline, Depends(get_video_rag_pipeline)]

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "video-rag"
+version = "0.1.0"
+description = "MCP-powered RAG over Videos — hybrid text+visual retrieval with timestamp-level segments, Neo4j knowledge graph, and FastMCP tool server"
+requires-python = ">=3.12"
+dependencies = [
+    "shared",
+    "anthropic>=0.34",
+    "openai-whisper>=20240930",
+    "opencv-python-headless>=4.10",
+    "open-clip-torch>=2.26",
+    "yt-dlp>=2024.8",
+    "fastmcp>=2.0",
+    "neo4j>=5.20",
+    "numpy>=1.26",
+    "torch>=2.2",
+    "Pillow>=10.0",
+]
+
+[tool.uv.sources]
+shared = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_rag"]

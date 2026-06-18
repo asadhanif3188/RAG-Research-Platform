@@ -1,0 +1,37 @@
+[
+  {
+    "query": "What is machine learning?",
+    "expected_video_id": "ai-lecture-101",
+    "expected_start_ts": 120.0,
+    "expected_end_ts": 180.0,
+    "expected_answer_contains": ["machine learning", "data"]
+  },
+  {
+    "query": "How does backpropagation work?",
+    "expected_video_id": "ai-lecture-101",
+    "expected_start_ts": 600.0,
+    "expected_end_ts": 720.0,
+    "expected_answer_contains": ["gradient", "loss"]
+  },
+  {
+    "query": "What are convolutional neural networks used for?",
+    "expected_video_id": "cv-workshop",
+    "expected_start_ts": 300.0,
+    "expected_end_ts": 420.0,
+    "expected_answer_contains": ["convolution", "image"]
+  },
+  {
+    "query": "Explain transformer architecture",
+    "expected_video_id": "nlp-deep-dive",
+    "expected_start_ts": 450.0,
+    "expected_end_ts": 600.0,
+    "expected_answer_contains": ["attention", "transformer"]
+  },
+  {
+    "query": "What is transfer learning?",
+    "expected_video_id": "ai-lecture-101",
+    "expected_start_ts": 900.0,
+    "expected_end_ts": 1020.0,
+    "expected_answer_contains": ["pre-trained", "fine-tune"]
+  }
+]
