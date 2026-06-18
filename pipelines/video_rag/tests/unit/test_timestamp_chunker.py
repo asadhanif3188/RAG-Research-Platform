@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from shared.models.document import ChunkType
-
 from video_rag.timestamp_chunker import TimestampChunker
 from video_rag.video_indexer import TranscriptSegment
 

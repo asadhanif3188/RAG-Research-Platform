@@ -61,7 +61,7 @@ class TestSceneDetector:
 
         mock_cv2.cvtColor.side_effect = lambda frame, code: frame[:, :, 0]
 
-        def mock_calc_hist(images, channels, mask, histSize, ranges):
+        def mock_calc_hist(images, channels, mask, hist_size, ranges):
             img = images[0]
             hist = np.histogram(img.flatten(), bins=64, range=(0, 256))[0]
             return hist.reshape(-1, 1).astype(np.float32)

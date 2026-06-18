@@ -29,7 +29,7 @@ class TestMCPServer:
         mock_kg = MagicMock()
         registry = {"v1": {"title": "Test", "url": "http://test.com"}}
 
-        server = create_mcp_server(mock_retriever, mock_kg, registry)
+        create_mcp_server(mock_retriever, mock_kg, registry)
 
         assert mcp_server._retriever is mock_retriever
         assert mcp_server._knowledge_graph is mock_kg

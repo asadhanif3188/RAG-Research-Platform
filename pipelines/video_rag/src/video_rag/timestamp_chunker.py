@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from shared.models.document import ChunkType, DocumentChunk
 
-from video_rag.video_indexer import TranscriptSegment
+if TYPE_CHECKING:
+    from video_rag.video_indexer import TranscriptSegment
 
 
 class TimestampChunker:

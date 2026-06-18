@@ -68,7 +68,7 @@ async def run_demo(video_source: str, query: str) -> None:
     print(f"\nTotal chunks: {len(chunks)}")
     print(f"Total keyframes: {len(keyframes)}")
     print(f"Video ID: {video_id}")
-    print(f"\nTo query this video, integrate with the full pipeline (requires pgvector + Neo4j).")
+    print("\nTo query this video, integrate with the full pipeline (requires pgvector + Neo4j).")
 
 
 def run_mcp_server() -> None:

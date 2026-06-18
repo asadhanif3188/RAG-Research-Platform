@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
-
 from video_rag.pipeline import VideoRAGPipeline
 from video_rag.segment_retriever import VideoSegmentResult
 

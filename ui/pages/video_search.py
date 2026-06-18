@@ -7,7 +7,7 @@ from typing import Any
 
 import chainlit as cl
 
-from ui.components.video_player import render_segment_list, render_video_player
+from ui.components.video_player import render_segment_list
 
 logger = logging.getLogger(__name__)
 

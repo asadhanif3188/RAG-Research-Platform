@@ -10,7 +10,6 @@ import anthropic
 
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
 from shared.models.retrieval import RetrievalResult
-
 from video_rag.clip_embedder import CLIPEmbedder
 from video_rag.knowledge_graph import KnowledgeGraph
 from video_rag.segment_retriever import SegmentRetriever

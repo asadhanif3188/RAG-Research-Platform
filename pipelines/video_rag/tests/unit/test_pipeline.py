@@ -7,7 +7,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from shared.models.query import PipelineStrategy, QueryRequest, QueryResponse
-
 from video_rag.pipeline import VideoRAGPipeline
 from video_rag.segment_retriever import VideoSegmentResult
 

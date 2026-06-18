@@ -11,7 +11,6 @@ import numpy as np
 if TYPE_CHECKING:
     from shared.embeddings.service import EmbeddingService
     from shared.storage.vector_store import VectorStoreClient
-
     from video_rag.clip_embedder import CLIPEmbedder
 
 logger = logging.getLogger(__name__)

@@ -2,18 +2,16 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import numpy as np
 import pytest
 
 from shared.models.document import ChunkType
-
-from video_rag.clip_embedder import CLIPEmbedder
 from video_rag.scene_detector import Keyframe
 from video_rag.segment_retriever import SegmentRetriever
 from video_rag.timestamp_chunker import TimestampChunker
-from video_rag.video_indexer import TranscriptSegment, VideoIndexer
+from video_rag.video_indexer import TranscriptSegment
 
 
 @pytest.mark.integration
@@ -63,7 +61,7 @@ class TestVideoIngestPipeline:
         assert all("end_ts" in c.metadata for c in chunks)
 
         # Verify timestamps are within 1 second of originals
-        for chunk, seg in zip(chunks, segments):
+        for chunk, seg in zip(chunks, segments, strict=True):
             assert abs(chunk.metadata["start_ts"] - seg.start_ts) < 1.0
             assert abs(chunk.metadata["end_ts"] - seg.end_ts) < 1.0
 
