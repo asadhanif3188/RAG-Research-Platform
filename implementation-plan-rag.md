@@ -409,15 +409,15 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 ### Phase 6: Integration & Polish
 
 ```
-[ ] 6.1  Build PipelineSelector UI component — dropdown to select active RAG strategy
-[ ] 6.2  Build A/B Comparison mode — run same query through two pipelines, show results side-by-side
-[ ] 6.3  Build shared Metrics Dashboard — RAGAS scores, latency, cost per pipeline
-[ ] 6.4  Connect all 5 pipelines to FastAPI router with unified request/response schema
-[ ] 6.5  Add cost tracking middleware — log token usage and USD cost per request per pipeline
-[ ] 6.6  Write end-to-end tests for each pipeline via the API
-[ ] 6.7  Write comprehensive README with architecture diagram, setup instructions, demo GIFs
-[ ] 6.8  Record 5-minute demo video showing all pipelines and the A/B comparison mode
-[ ] 6.9  Deploy to Fly.io or Railway (or document Docker deployment steps)
+[x] 6.1  Build PipelineSelector UI component — dropdown to select active RAG strategy
+[x] 6.2  Build A/B Comparison mode — run same query through two pipelines, show results side-by-side
+[x] 6.3  Build shared Metrics Dashboard — RAGAS scores, latency, cost per pipeline
+[x] 6.4  Connect all 5 pipelines to FastAPI router with unified request/response schema
+[x] 6.5  Add cost tracking middleware — log token usage and USD cost per request per pipeline
+[x] 6.6  Write end-to-end tests for each pipeline via the API
+[x] 6.7  Write comprehensive README with architecture diagram, setup instructions, demo GIFs
+[x] 6.8  Record 5-minute demo video showing all pipelines and the A/B comparison mode
+[x] 6.9  Deploy to Fly.io or Railway (or document Docker deployment steps)
 ```
 
 ---
