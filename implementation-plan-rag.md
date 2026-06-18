@@ -370,19 +370,19 @@ Connect all pipelines to the shared UI pipeline selector. Build A/B comparison m
 ### Phase 4: Self-RAG with LangGraph
 
 ```
-[ ] 4.1  Extend CRAG graph with three decision point nodes: retrieve_or_not, relevance_grade, hallucination_grade, answer_grade
-[ ] 4.2  Implement RetrieveOrNot — LLM decides if retrieval is needed for the given query
-[ ] 4.3  Implement HallucinationGrader — checks if generated answer is grounded in retrieved docs
-[ ] 4.4  Implement AnswerGrader — checks if answer actually addresses the question
-[ ] 4.5  Implement HyDEQueryExpander — generate hypothetical document, use its embedding for retrieval
-[ ] 4.6  Add adaptive retrieval depth: if grounding check fails, re-query with HyDE-expanded query
-[ ] 4.7  Add graph execution trace visualization in Chainlit (show which nodes fired, why)
-[ ] 4.8  Compare Self-RAG vs CRAG vs naive RAG on the same 50-query test set
-[ ] 4.9  Write unit tests for all grader nodes
-[ ] 4.10 Write integration test for full Self-RAG graph with all decision paths exercised
-[ ] 4.11 Write standalone README for self_rag/ — architecture diagram, graph trace examples, RAGAS comparison table, demo GIF
-[ ] 4.12 Build standalone demo.py (Streamlit) — enter query, see full decision graph trace, runs without full platform
-[ ] 4.13 Write Dockerfile for self_rag/ — independently runnable with `docker run`
+[x] 4.1  Extend CRAG graph with three decision point nodes: retrieve_or_not, relevance_grade, hallucination_grade, answer_grade
+[x] 4.2  Implement RetrieveOrNot — LLM decides if retrieval is needed for the given query
+[x] 4.3  Implement HallucinationGrader — checks if generated answer is grounded in retrieved docs
+[x] 4.4  Implement AnswerGrader — checks if answer actually addresses the question
+[x] 4.5  Implement HyDEQueryExpander — generate hypothetical document, use its embedding for retrieval
+[x] 4.6  Add adaptive retrieval depth: if grounding check fails, re-query with HyDE-expanded query
+[x] 4.7  Add graph execution trace visualization in Chainlit (show which nodes fired, why)
+[x] 4.8  Compare Self-RAG vs CRAG vs naive RAG on the same 50-query test set
+[x] 4.9  Write unit tests for all grader nodes
+[x] 4.10 Write integration test for full Self-RAG graph with all decision paths exercised
+[x] 4.11 Write standalone README for self_rag/ — architecture diagram, graph trace examples, RAGAS comparison table, demo GIF
+[x] 4.12 Build standalone demo.py (Streamlit) — enter query, see full decision graph trace, runs without full platform
+[x] 4.13 Write Dockerfile for self_rag/ — independently runnable with `docker run`
 ```
 
 ### Phase 5: MCP-powered RAG over Videos
