@@ -8,20 +8,240 @@
 
 ## Table of Contents
 
-1. [Pre-Demo Setup](#1-pre-demo-setup)
-2. [Demo Flow Overview](#2-demo-flow-overview)
-3. [Step 1: Infrastructure Startup](#step-1-infrastructure-startup)
-4. [Step 2: API Server Launch](#step-2-api-server-launch)
-5. [Step 3: Fastest RAG — Baseline Pipeline](#step-3-fastest-rag--baseline-pipeline)
-6. [Step 4: Multimodal RAG — Vision + Tables](#step-4-multimodal-rag--vision--tables)
-7. [Step 5: Corrective RAG (CRAG) — Self-Assessment](#step-5-corrective-rag-crag--self-assessment)
-8. [Step 6: Self-RAG — Agentic Decision Graph](#step-6-self-rag--agentic-decision-graph)
-9. [Step 7: Video RAG — MCP + Timestamp Retrieval](#step-7-video-rag--mcp--timestamp-retrieval)
-10. [Step 8: A/B Pipeline Comparison](#step-8-ab-pipeline-comparison)
-11. [Step 9: Metrics Dashboard](#step-9-metrics-dashboard)
-12. [Step 10: Code & Architecture Walkthrough](#step-10-code--architecture-walkthrough)
-13. [Talking Points & Q&A Prep](#talking-points--qa-prep)
-14. [Troubleshooting](#troubleshooting)
+1. [Deployment Options](#deployment-options)
+2. [Pre-Demo Setup](#1-pre-demo-setup)
+3. [Demo Flow Overview](#2-demo-flow-overview)
+4. [Step 1: Infrastructure Startup](#step-1-infrastructure-startup)
+5. [Step 2: API Server Launch](#step-2-api-server-launch)
+6. [Step 3: Fastest RAG — Baseline Pipeline](#step-3-fastest-rag--baseline-pipeline)
+7. [Step 4: Multimodal RAG — Vision + Tables](#step-4-multimodal-rag--vision--tables)
+8. [Step 5: Corrective RAG (CRAG) — Self-Assessment](#step-5-corrective-rag-crag--self-assessment)
+9. [Step 6: Self-RAG — Agentic Decision Graph](#step-6-self-rag--agentic-decision-graph)
+10. [Step 7: Video RAG — MCP + Timestamp Retrieval](#step-7-video-rag--mcp--timestamp-retrieval)
+11. [Step 8: A/B Pipeline Comparison](#step-8-ab-pipeline-comparison)
+12. [Step 9: Metrics Dashboard](#step-9-metrics-dashboard)
+13. [Step 10: Code & Architecture Walkthrough](#step-10-code--architecture-walkthrough)
+14. [Talking Points & Q&A Prep](#talking-points--qa-prep)
+15. [Troubleshooting](#troubleshooting)
+
+---
+
+## Deployment Options
+
+The platform supports three deployment models. Choose based on your demo environment:
+
+### Option 1: Infrastructure in Docker + Python Services (Recommended for Demo)
+
+**Best for:** Live demos, interactive development, quick iteration
+
+```bash
+# Terminal 1: Start infrastructure (PostgreSQL, Qdrant, Redis, Neo4j, LangFuse)
+docker-compose up -d
+
+# Terminal 2: Start FastAPI backend
+uv run uvicorn api.src.api.main:app --reload --port 8000
+
+# Terminal 3: Start Chainlit UI
+uv run chainlit run ui/app.py -w
+
+# Terminal 4 (Optional): Run individual pipeline Streamlit demos
+cd pipelines/multimodal_rag && uv run streamlit run demo.py
+```
+
+**Advantages:**
+- Infrastructure isolated in Docker (clean environment)
+- Python services reload on code changes (fast iteration)
+- Easy to debug with terminal output
+- Can run multiple pipeline demos in separate terminals
+
+### Option 2: Full Docker Compose (All Services in Containers)
+
+**Best for:** Production deployment, cloud environments, complete isolation
+
+**Step 1:** Extend `docker-compose.yml` with pipeline services:
+
+```yaml
+services:
+  # ... existing infrastructure services ...
+  
+  fastest_rag:
+    build:
+      context: .
+      dockerfile: pipelines/fastest_rag/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rag_network
+
+  multimodal_rag:
+    build:
+      context: .
+      dockerfile: pipelines/multimodal_rag/Dockerfile
+    ports:
+      - "8502:8501"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rag_network
+
+  corrective_rag:
+    build:
+      context: .
+      dockerfile: pipelines/corrective_rag/Dockerfile
+    ports:
+      - "8503:8501"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      TAVILY_API_KEY: ${TAVILY_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rag_network
+
+  self_rag:
+    build:
+      context: .
+      dockerfile: pipelines/self_rag/Dockerfile
+    ports:
+      - "8504:8501"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rag_network
+
+  video_rag:
+    build:
+      context: .
+      dockerfile: pipelines/video_rag/Dockerfile
+    ports:
+      - "8505:8501"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    networks:
+      - rag_network
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile  # Create if not exists
+    ports:
+      - "8000:8000"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rag_network
+
+  ui:
+    build:
+      context: .
+      dockerfile: ui/Dockerfile  # Create if not exists
+    ports:
+      - "8080:8000"
+    environment:
+      API_BASE_URL: http://api:8000
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    depends_on:
+      - api
+    networks:
+      - rag_network
+```
+
+**Step 2:** Run everything:
+
+```bash
+docker-compose up
+```
+
+**Advantages:**
+- Single command to start entire system
+- Reproducible across machines
+- Easy to scale horizontally
+- Cleaner for CI/CD pipelines
+
+### Option 3: Individual Docker Images (Manual Orchestration)
+
+**Best for:** Kubernetes deployment, microservice architecture, selective scaling
+
+```bash
+# Build all images
+docker build -t fastest-rag -f pipelines/fastest_rag/Dockerfile .
+docker build -t multimodal-rag -f pipelines/multimodal_rag/Dockerfile .
+docker build -t corrective-rag -f pipelines/corrective_rag/Dockerfile .
+docker build -t self-rag -f pipelines/self_rag/Dockerfile .
+docker build -t video-rag -f pipelines/video_rag/Dockerfile .
+docker build -t rag-api -f api/Dockerfile .
+docker build -t rag-ui -f ui/Dockerfile .
+
+# Start infrastructure
+docker-compose up -d
+
+# Run pipelines individually (each on a different port)
+docker run --network rag_network -p 8501:8501 \
+  -e ANTHROPIC_API_KEY=sk-... \
+  -e OPENAI_API_KEY=sk-... \
+  fastest-rag
+
+docker run --network rag_network -p 8502:8501 \
+  -e ANTHROPIC_API_KEY=sk-... \
+  -e OPENAI_API_KEY=sk-... \
+  multimodal-rag
+
+# ... repeat for other pipelines on ports 8503-8505
+
+docker run --network rag_network -p 8000:8000 \
+  -e ANTHROPIC_API_KEY=sk-... \
+  rag-api
+
+docker run --network rag_network -p 8080:8000 \
+  -e API_BASE_URL=http://host.docker.internal:8000 \
+  rag-ui
+```
+
+**Advantages:**
+- Fine-grained control over each service
+- Easy to restart individual components
+- Ideal for Kubernetes + Helm charts
+- Better resource isolation
+
+---
+
+## Recommended for Demo: Option 1
+
+For the live demo in this guide, we recommend **Option 1** (Docker infrastructure + Python services). It provides:
+- **Fast iteration:** Code reloads without rebuilding Docker images
+- **Clear logs:** Each service's output in its own terminal
+- **Easy debugging:** Breakpoints and print statements work directly
+- **Clean environment:** Docker handles infrastructure deterministically
 
 ---
 
