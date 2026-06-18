@@ -133,13 +133,16 @@ async def test_unimplemented_pipeline_returns_501():
     app.dependency_overrides[dependencies.get_multimodal_pipeline] = lambda: MagicMock()
     app.dependency_overrides[dependencies.get_crag_pipeline] = lambda: MagicMock()
     app.dependency_overrides[dependencies.get_self_rag_pipeline] = lambda: MagicMock()
+    app.dependency_overrides[dependencies.get_video_rag_pipeline] = lambda: MagicMock()
 
     try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            # All valid PipelineStrategy values are implemented, so an invalid
+            # pipeline string triggers a Pydantic validation error (422).
             response = await client.post(
                 "/query",
-                json={"query": "test", "pipeline": "video_rag"},
+                json={"query": "test", "pipeline": "nonexistent_pipeline"},
             )
-        assert response.status_code == 501
+        assert response.status_code == 422
     finally:
         app.dependency_overrides.clear()

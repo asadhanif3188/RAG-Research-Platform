@@ -96,13 +96,23 @@ class SegmentRetriever:
             filters=filters,
         )
 
-        # 4. Build a lookup of segment_id → text result
+        # 4. Normalise results to dicts (PgVectorClient returns RetrievalResult objects)
         text_scores: dict[str, float] = {}
         segment_data: dict[str, dict[str, Any]] = {}
         for result in text_results:
-            sid = result.get("chunk_id", result.get("id", ""))
-            text_scores[sid] = result.get("score", 0.0)
-            segment_data[sid] = result
+            if isinstance(result, dict):
+                row = result
+            else:
+                # Pydantic model (RetrievalResult)
+                row = {
+                    "chunk_id": getattr(result, "chunk_id", ""),
+                    "content": getattr(result, "content", ""),
+                    "score": getattr(result, "score", 0.0),
+                    "metadata": getattr(result, "metadata", {}),
+                }
+            sid = row.get("chunk_id", row.get("id", ""))
+            text_scores[sid] = row.get("score", 0.0)
+            segment_data[sid] = row
 
         # 5. Compute visual scores for each candidate
         visual_scores: dict[str, float] = {}
