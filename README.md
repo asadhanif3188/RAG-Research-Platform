@@ -1,6 +1,12 @@
 # RAG Research Platform
 
+[![CI](https://github.com/asadhanif3188/rag-research-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/asadhanif3188/rag-research-platform/actions/workflows/ci.yml)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A unified monorepo showcasing **five production-grade RAG pipeline strategies** — built as a single platform with shared infrastructure, an A/B comparison UI, real-time metrics dashboard, and RAGAS-based evaluation.
+
+> **Why this project?** Built to compare RAG strategies head-to-head on the same corpus, with real metrics — not just vibes.
 
 ## Architecture
 
@@ -73,7 +79,7 @@ rag-research-platform/
 
 ```bash
 # Clone and configure
-git clone https://github.com/your-username/rag-research-platform
+git clone https://github.com/asadhanif3188/rag-research-platform
 cd rag-research-platform
 cp .env.example .env
 # Edit .env: add ANTHROPIC_API_KEY, OPENAI_API_KEY, TAVILY_API_KEY
@@ -338,14 +344,22 @@ uv run ruff check .
 | 5 — Video RAG with MCP | **Done** | Whisper + CLIP + Neo4j + MCP server |
 | 6 — Integration & Polish | **Done** | Unified UI, A/B comparison, metrics, deployment |
 
+## Key Design Decisions
+
+- **Monorepo over separate repos** — Shared embedding service, vector store, ingestion pipeline, and RAGAS eval harness would otherwise be duplicated 5x. uv workspaces give per-pipeline isolation with shared dependencies.
+- **Claude over GPT-4 for generation** — Sonnet for generation, Haiku for grading. Using Haiku for yes/no grading decisions reduces cost ~10x vs. using a frontier model.
+- **Three storage engines for three access patterns** — pgvector for semantic retrieval (lives alongside app data), Redis for sub-millisecond semantic caching, Neo4j for video knowledge graph traversal.
+- **RAGAS for evaluation** — Industry-standard RAG metrics (faithfulness, relevancy, precision, recall) enabling apples-to-apples pipeline comparison on the same 50-query test set.
+- **Chainlit over Next.js** — Production-quality chat UI out-of-the-box with streaming, file upload, and custom components. FastAPI backend is fully decoupled for future frontend swaps.
+
+For the full rationale, see [docs/architecture-decisions.md](docs/architecture-decisions.md).
+
 ## Tech Stack
 
 Python 3.12 · uv workspaces · FastAPI · Chainlit · LangGraph · Claude API · OpenAI Embeddings · pgvector · Qdrant · Redis · Neo4j · LangFuse · RAGAS · Whisper · CLIP · MCP · Pydantic v2
 
 ## Future Work
 
-- **Nomic Embeddings**: Replace OpenAI embeddings with open-weight Nomic-embed for cost savings
-- **Fine-tuned graders**: Train task-specific relevance/hallucination graders
 - **Streaming responses**: SSE streaming for real-time answer generation
-- **Multi-tenant**: Per-user document collections and pipeline preferences
-- **Evaluation harness**: Automated benchmark suite on 50-query test sets with CI integration
+- **Fine-tuned graders**: Train task-specific relevance/hallucination graders on domain data
+- **Nomic Embeddings**: Replace OpenAI embeddings with open-weight Nomic-embed for cost savings
