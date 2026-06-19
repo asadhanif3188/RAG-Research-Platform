@@ -49,3 +49,9 @@ logs/
 
 # Jupyter
 .ipynb_checkpoints/
+
+.claude/
+.mypy_cache/
+.ruff_cache/
+PORTFOLIO-PREP.md
+implementation-plan-rag.md
