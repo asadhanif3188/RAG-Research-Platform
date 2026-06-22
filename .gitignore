@@ -53,5 +53,5 @@ logs/
 .claude/
 .mypy_cache/
 .ruff_cache/
-!PORTFOLIO-PREP.md
+PORTFOLIO-PREP.md
 implementation-plan-rag.md

@@ -20,17 +20,7 @@ These are strengths — make sure they stay front and centre:
 | `.env.example` | Good practice, already present |
 | Per-pipeline READMEs | Helps reviewers navigate without reading all code |
 
-## 2. What to REMOVE or GITIGNORE Before Making Public
-
-| Item | Action | Reason |
-|------|--------|--------|
-| `.claude/` directory | Add `.claude/` to `.gitignore` | Contains Claude Code tool settings — internal tooling, not project code |
-| `.mypy_cache/` | Add to `.gitignore` | Build artefact, already cached locally |
-| `.ruff_cache/` | Add to `.gitignore` | Build artefact |
-| `.coverage` | Already gitignored — verify it's not tracked | Binary file, not useful to reviewers |
-| `implementation-plan-rag.md` (72 KB) | Move to `docs/` or remove entirely | 1400-line internal planning doc clutters the root. If you keep it, rename to `docs/architecture-decisions.md` and trim to the final decisions only (remove task checklists, timeline estimates, status tracking) |
-| `DEMO-GUIDE.md` (28 KB) | Move to `docs/demo-guide.md` | Keep it, but link from README instead of leaving at root |
-| `uv.lock` (944 KB) | Keep but verify it's useful | Lock files are fine to commit for reproducibility. If repo is demo-only (not deployed), you could gitignore it to reduce noise |
+## ~~2. What to REMOVE or GITIGNORE Before Making Public~~ Done
 
 ## 3. What to ADD
 
@@ -60,7 +50,7 @@ The ASCII diagram in README is good but hard to scan. Create a proper diagram:
 
 Add a "Results" section to README with actual numbers:
 
-```markdown
+```
 ## Benchmark Results
 
 | Pipeline | Faithfulness | Relevancy | Ctx Precision | p50 Latency | Cost/Query |
@@ -76,51 +66,25 @@ Add a "Results" section to README with actual numbers:
 - This is what separates a "built it" project from a "measured it" project
 - Even small sample sizes (10-20 queries) are better than nothing
 
-### 3d. LICENSE File
+### ~~3d. LICENSE File~~ Done
 
-**Missing.** Add `LICENSE` at root — MIT is standard for portfolio projects. Without a license, the repo technically has "all rights reserved" which discourages engagement (stars, forks, contributions).
+### ~~3e. CONTRIBUTING.md~~ Done
 
-### 3e. CONTRIBUTING.md (Optional)
+### ~~3f. Badges in README~~ Done
 
-Not critical for a portfolio project, but a short one signals professionalism. A few lines about how to set up the dev environment and run tests is enough.
-
-### 3f. Badges in README
-
-Add status badges at the very top of README:
-
-```markdown
-![CI](https://github.com/YOUR_USERNAME/rag-research-platform/actions/workflows/ci.yml/badge.svg)
-![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-```
-
-### 3g. GitHub Repo Settings
-
-- **Description:** "Unified RAG Research Platform — 5 retrieval strategies (Naive, Multimodal, CRAG, Self-RAG, Video+MCP) with A/B comparison, RAGAS evaluation, and metrics dashboard"
-- **Topics/Tags:** `rag`, `retrieval-augmented-generation`, `langgraph`, `fastapi`, `claude`, `pgvector`, `neo4j`, `python`, `ai`, `llm`
-- **Website URL:** Link to the DEMO-GUIDE or a hosted demo if available
+### ~~3g. GitHub Repo Settings~~ Done
 
 ## 4. README Improvements
 
-Your README is already solid. Specific tweaks:
+1. ~~**Replace `your-username`** in the clone URL~~ **Done**
+2. ~~**Add a one-liner "Why this project?"**~~ **Done**
+3. **Lead with the visual** (screenshot/GIF) before the architecture diagram — waiting on screenshots
+4. ~~**Add a "Key Design Decisions" section**~~ **Done**
+5. ~~**Trim "Future Work"** to 2-3 items~~ **Done**
 
-1. **Replace `your-username`** in the clone URL — currently says `your-username/rag-research-platform`
-2. **Add a one-liner "Why this project?"** at the top: _"Built to compare RAG strategies head-to-head on the same corpus, with real metrics — not just vibes."_
-3. **Lead with the visual** (screenshot/GIF) before the architecture diagram
-4. **Add a "Key Design Decisions" section** (3-5 bullets):
-   - Why monorepo over separate repos
-   - Why Claude over GPT-4 for generation
-   - Why pgvector + Redis + Neo4j (three stores for three access patterns)
-   - Why RAGAS for evaluation
-5. **Trim "Future Work"** to 2-3 items max — long wishlists make a project look unfinished
+## ~~5. Git History Cleanup~~ Done
 
-## 5. Git History Cleanup
-
-Your commit history is fine for a personal project but could be tightened:
-
-- Consider whether `implementation-plan-rag.md` changes should be squashed (multiple "status updated" commits)
-- The current history tells a clear story: Phase 0 → 1 → 2 → 3 → 4 → 5 → 6. This is actually good — keep it
-- Make sure no `.env` files are in any commit history (run: `git log --all --full-history -- .env`)
+Verified: no `.env` in history, phase story reads clearly, no action needed.
 
 ## 6. CV / Resume Bullet Points
 
@@ -156,18 +120,12 @@ Your commit history is fine for a personal project but could be tightened:
 - Write a short LinkedIn post announcing it: "Built a RAG Research Platform comparing 5 retrieval strategies..." with the GIF
 - If you have time, write a blog post about one interesting design decision (e.g., "How I implemented Self-RAG with LangGraph" or "Benchmarking 5 RAG Strategies on the Same Corpus")
 
-## 8. Priority Order
+## 8. Remaining Priority Order
 
-Do these in order — each subsequent item has diminishing returns:
-
-1. **Add LICENSE file** (2 min)
-2. **Fix clone URL** in README (1 min)
-3. **Add `.claude/`, `.mypy_cache/`, `.ruff_cache/` to .gitignore** (2 min)
-4. **Capture screenshots** and embed one in README (20 min)
-5. **Record a demo GIF** (30 min)
-6. **Add badges** to README (5 min)
-7. **Run benchmarks** and add results table (1-2 hrs depending on setup)
-8. **Create proper architecture diagram** (30 min)
-9. **Move `implementation-plan-rag.md`** to docs/ and trim (15 min)
-10. **Set GitHub repo description + topics** (2 min)
-11. **Write a blog post** (2-4 hrs — only if targeting specific roles)
+1. ~~**Add `.claude/`, `.mypy_cache/`, `.ruff_cache/`, `implementation-plan-rag.md` to .gitignore**~~ **Done**
+2. **Capture screenshots** and embed one in README (20 min)
+3. **Record a demo GIF** (30 min)
+4. **Run benchmarks** and add results table (1-2 hrs depending on setup)
+5. **Create proper architecture diagram** (30 min)
+6. ~~**Set GitHub repo description + topics**~~ **Done**
+7. **Write a blog post** (2-4 hrs — only if targeting specific roles)

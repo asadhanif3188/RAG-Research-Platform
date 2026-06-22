@@ -6,7 +6,9 @@
       "Bash(python -m pytest pipelines/fastest_rag/tests/unit/ -v --tb=short)",
       "Bash(xargs wc:*)",
       "Bash(du -h /d/8.AsadHanif-Personal/10.RAG-Research-Platform/shared/src/shared/*/*.py)",
-      "Bash(git -C \"d:/8.AsadHanif-Personal/10.RAG-Research-Platform\" log --oneline -20)"
+      "Bash(git -C \"d:/8.AsadHanif-Personal/10.RAG-Research-Platform\" log --oneline -20)",
+      "Bash(git -C \"d:/8.AsadHanif-Personal/10.RAG-Research-Platform\" log --all --full-history -- .env)",
+      "Bash(git -C \"d:/8.AsadHanif-Personal/10.RAG-Research-Platform\" log --oneline)"
     ]
   }
 }
